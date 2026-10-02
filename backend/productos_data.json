@@ -1,0 +1,168 @@
+[
+  {
+    "id": 1,
+    "nombre": "Portátil Thinkpad T14 Gen 2I Core I5-11G° SSD 256Gb 16G RAM - 14\" Win 11 Pro",
+    "precio": 2799.0,
+    "categoryId": 1,
+    "imagenes": [
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dwee4d5702/notebooks-lenovo/Lenovo%20Thinkpad%20E14%20.jpg",
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dwe9e47a70/notebooks-lenovo/Thinkpad%20E14%201.jpg"
+    ]
+  },
+  {
+    "id": 2,
+    "nombre": "Chromebook Lenovo 100E 2nd Celeron N4000 32GB 4GB ChromeOS",
+    "precio": 759.0,
+    "categoryId": 1,
+    "imagenes": [
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dw0419f942/notebooks-lenovo/Chromebook%20300E%202.png",
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dwd5ab3cc4/notebooks-lenovo/Chromebook%20300E%204.png"
+    ]
+  },
+  {
+    "id": 3,
+    "nombre": "IdeaPad 1i Intel Core i3-1315U 8GB 256GB SSD Linux 15.6\" FHD",
+    "precio": 2501.16,
+    "categoryId": 2,
+    "imagenes": [
+      "https://p1-ofp.static.pub/medias/25520263689_CG_202212300331451751916179971.png",
+      "https://p2-ofp.static.pub//fes/cms/2024/12/26/bipc0oog4dbfih8upuzuz0a5dfagki033513.png"
+    ]
+  },
+  {
+    "id": 4,
+    "nombre": "ThinkStation P3 Intel Core i7-137/00 vPro Windows 11 Pro 16GB 512GB SSD RTX A1000 8GB",
+    "precio": 11902.8,
+    "categoryId": 2,
+    "imagenes": [
+      "https://p3-ofp.static.pub//fes/cms/2024/09/11/0dblr4lc7cgbglem28wl5avqn5kwkn314385.png",
+      "https://p3-ofp.static.pub//fes/cms/2024/09/11/4r6pc66ysbi229k4vmvxjg96jt0yhg437775.png"
+    ]
+  },
+  {
+    "id": 5,
+    "nombre": "ThinkCentre neo 30s Intel Core i5-13420H 8GB 256GB SSD Windows 11 Pro",
+    "precio": 4249.92,
+    "categoryId": 2,
+    "imagenes": [
+      "https://p4-ofp.static.pub//fes/cms/2025/01/27/16lkb6iv4ewjiedr4u2blcpinn3deu796037.png",
+      "https://p2-ofp.static.pub//fes/cms/2025/01/27/6ahu2xc6mp6jrs08uok04j8rbv2ivw471317.png"
+    ]
+  },
+  {
+    "id": 6,
+    "nombre": "ThinkCentre M75s AMD Ryzen 5 PRO 8500G 16GB 512GB SSD Windows 11 Pro",
+    "precio": 4200.0,
+    "categoryId": 1,
+    "imagenes": [
+      "https://p3-ofp.static.pub//fes/cms/2024/04/29/lnf0xfr24ym3bg34mpcv9e38wh8pvq264184.png",
+      "https://p2-ofp.static.pub//fes/cms/2024/04/29/zk8mc47tzgeq2nfdjbkb8390mmokvn572842.png"
+    ]
+  },
+  {
+    "id": 7,
+    "nombre": "Xiaomi Redmi 12 Lite 256GB - Rosa",
+    "precio": 1489.9,
+    "categoryId": 3,
+    "imagenes": [
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dw8cd31108/smartphones-xiaomi/Xiaomi%2012%20Lite%20-%20ROSA.jpg",
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dw91e94855/smartphones-xiaomi/Xiaomi%2012%20Lite%20-%20ROSA%203.jpg",
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dw95b9ec46/smartphones-xiaomi/Xiaomi%2012%20Lite%20-%20ROSA%202.jpg"
+    ]
+  },
+  {
+    "id": 8,
+    "nombre": "Samsung Galaxy A22 128GB 4GB Android Negro Desbloqueado",
+    "precio": 729.0,
+    "categoryId": 3,
+    "imagenes": [
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dw8c1e7c0e/smartphones-samsung/Galaxy%20A22%20Preto%201.jpg",
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dwfefaf1e5/smartphones-samsung/Galaxy%20A22%20Preto%202.jpg",
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dwb9d40b72/smartphones-samsung/Galaxy%20A22%20Preto%204.jpg"
+    ]
+  },
+  {
+    "id": 9,
+    "nombre": "Apple iPhone SE 2nd Gen 64GB 3GB iOS 4G Negro",
+    "precio": 999.0,
+    "categoryId": 3,
+    "imagenes": [
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dwf8e19ef0/smartphones-apple/iPhone%20SE%202Gen%201.jpg",
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dwf45e4d76/smartphones-apple/iPhone%20SE%203Gen%202.jpg",
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dw3aa40bb4/smartphones-apple/iPhone%20SE%203Gen%204.jpg"
+    ]
+  },
+  {
+    "id": 10,
+    "nombre": "Apple iPad 7 A2197 32GB - Plata (Wi-Fi)",
+    "precio": 1499.0,
+    "categoryId": 4,
+    "imagenes": [
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dwb1647f71/tablet-apple/iPad%207th%20Prata%201.jpg",
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dwe3da07ac/tablet-apple/iPad%207th%20Prata%203.jpg",
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dw38b29660/tablet-apple/iPad%207th%20Prata%204.jpg"
+    ]
+  },
+  {
+    "id": 11,
+    "nombre": "Samsung Galaxy Tab S6 Lite 64Gb 4Gb Ram - Gris",
+    "precio": 1599.0,
+    "categoryId": 4,
+    "imagenes": [
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dwb371c88f/tablet-samsung/Galaxy%20Tab%20S6%20Lite%201.jpg",
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dw5bfa379e/tablet-samsung/Galaxy%20Tab%20S6%20Lite%202.jpg",
+      "https://www.voke.shop/on/demandware.static/-/Sites-storefront-voke/default/dwd9bf5e95/tablet-samsung/Galaxy%20Tab%20S6%20Lite%203.jpg"
+    ]
+  },
+  {
+    "id": 12,
+    "nombre": "Lenovo TAB K11 con lápiz y funda, MediaTek Helio G88, 4 GB de RAM, 128 GB de disco duro, Wi-Fi, Android 14, 11\" FHD",
+    "precio": 1741.8,
+    "categoryId": 4,
+    "imagenes": [
+      "https://p1-ofp.static.pub//fes/cms/2024/07/15/krdew0oyuqcrlv3jrm6k48fqwkhobb956812.jpg",
+      "https://p3-ofp.static.pub//fes/cms/2023/12/19/3iz5jictg5jwhfrz7qg9yv6dbrzch3562893.jpg",
+      "https://p1-ofp.static.pub//fes/cms/2023/12/19/7tfpz6m6ikno1nouwiuxiqhvrc7cod926389.jpg"
+    ]
+  },
+  {
+    "id": 13,
+    "nombre": "Monitor ThinkVision 27\" T27i-30 FHD (1920x1080) 60Hz",
+    "precio": 1755.12,
+    "categoryId": 5,
+    "imagenes": [
+      "https://p1-ofp.static.pub//medias/26160394583_ThinkVisionT27i30IMG_202311020500331699773722030.png"
+    ]
+  },
+  {
+    "id": 14,
+    "nombre": "Lenovo Legion 44.5\" R45w-30 DQHD (5120x1440) 170Hz Monitor curvo para juegos",
+    "precio": 6999.96,
+    "categoryId": 5,
+    "imagenes": [
+      "https://p1-ofp.static.pub//medias/25895684375_R45w-30_202306301014011688575899955.png",
+      "https://p4-ofp.static.pub/ShareResource/ww/visuals/Legion-R45w-30/Legion-R45w-30-feature2-3.png",
+      "https://p3-ofp.static.pub/ShareResource/ww/visuals/Legion-R45w-30/Legion-R45w-30-feature7-2.png"
+    ]
+  },
+  {
+    "id": 15,
+    "nombre": "Monitor Gamer Lenovo Legion 24.5\" R25f-30 FHD (1920x1080) 240Hz",
+    "precio": 1489.9,
+    "categoryId": 5,
+    "imagenes": [
+      "https://p1-ofp.static.pub//medias/25927747247_LenovoR25f-30IMG_202307210527491692621010499.png",
+      "https://p1-ofp.static.pub//fes/cms/2024/05/28/ln0yvuxqar5dw51ynqdi11031jzcd0298057.png"
+    ]
+  },
+  {
+    "id": 16,
+    "nombre": "Portátil Yoga Slim 7x (14″ Snapdragon)",
+    "precio": 10799.9,
+    "categoryId": 1,
+    "imagenes": [
+      "https://p3-ofp.static.pub//fes/cms/2024/12/27/7c0m2xdkdbyxs0ibd7erpx9tlcovng883092.png",
+      "https://p1-ofp.static.pub//fes/cms/2024/04/11/aw5au2422gcj30qv17nb4kzjc9ng3h947645.jpg"
+    ]
+  }
+]
