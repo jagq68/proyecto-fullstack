@@ -3,20 +3,16 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 
-// IMPORTAR TODAS LAS RUTAS
+// 1. IMPORTAR LAS RUTAS DE AUTENTICACIÓN
 const authRoutes = require('./routes/authRoutes');
-const categoriaRoutes = require('./routes/categoriaRoutes');
-const productoRoutes = require('./routes/productoRoutes');
 
 const app = express();
 
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
 app.use(express.json());
 
-// ENGANCHAR LAS RUTAS A LA API
+// 2. VINCULAR LAS RUTAS DE AUTENTICACIÓN A LA APLICACIÓN
 app.use('/api/auth', authRoutes);
-app.use('/api/categorias', categoriaRoutes);
-app.use('/api/produtos', productoRoutes); // Mapeado exactamente a /api/produtos como pide tu escrito
 
 // Configuración de PostgreSQL
 const pool = new Pool({
@@ -30,6 +26,7 @@ const pool = new Pool({
 // RUTA DE PRUEBA SEGURA
 app.get('/api/prueba', async (req, res) => {
     try {
+        // Intentamos consultar la base de datos
         const result = await pool.query('SELECT NOW()');
         res.json({ 
             mensaje: "¡API de tu e-commerce funcionando!", 
@@ -37,6 +34,8 @@ app.get('/api/prueba', async (req, res) => {
             hora_servidor: result.rows[0].now 
         });
     } catch (error) {
+        // ¡TRUCO! Si la base de datos no existe, atrapamos el error aquí 
+        // para que tu servidor Express NO SE CAIGA y te responda esto:
         res.json({ 
             mensaje: "¡Express funciona bien!, pero PostgreSQL aún no está configurado.", 
             db_conexion: false,
