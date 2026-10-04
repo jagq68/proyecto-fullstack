@@ -10,11 +10,7 @@ const pool = new Pool({
 });
 
 const crearTablasSQL = `
-    -- 1. LIMPIEZA PREVIA (En orden inverso de dependencias para evitar errores de Foreign Keys)
-    DROP TABLE IF EXISTS metricas_tienda CASCADE;
-    DROP TABLE IF EXISTS seguimiento_envios CASCADE;
-    DROP TABLE IF EXISTS pedido_elementos CASCADE;
-    DROP TABLE IF EXISTS pedidos CASCADE;
+    -- Limpieza previa en orden inverso para evitar conflictos de claves foráneas
     DROP TABLE IF EXISTS carrito_elementos CASCADE;
     DROP TABLE IF EXISTS carritos CASCADE;
     DROP TABLE IF EXISTS clientes_perfil CASCADE;
@@ -23,7 +19,7 @@ const crearTablasSQL = `
     DROP TABLE IF EXISTS productos CASCADE;
     DROP TABLE IF EXISTS categorias CASCADE;
 
-    -- 2. CREACIÓN DE TABLAS EXISTENTES
+    -- Creación de tablas
     CREATE TABLE categorias (
         id SERIAL PRIMARY KEY,
         nombre VARCHAR(100) NOT NULL UNIQUE
@@ -76,50 +72,15 @@ const crearTablasSQL = `
         cantidad INT NOT NULL CHECK (cantidad > 0),
         UNIQUE(carrito_id, producto_id)
     );
-
-    -- 3. NUEVAS TABLAS DE LA SIMULACIÓN DE VOKE.COM BRASIL
-    CREATE TABLE pedidos (
-        id SERIAL PRIMARY KEY,
-        usuario_id INT REFERENCES usuarios(id) ON DELETE RESTRICT,
-        total DECIMAL(10, 2) NOT NULL,
-        metodo_pago VARCHAR(50) NOT NULL, -- 'Pix', 'Cartão de Crédito'
-        estado_pago VARCHAR(30) NOT NULL DEFAULT 'Aguardando Pagamento', -- 'Pago Aprovado', 'Recusado'
-        clave_rastreo VARCHAR(50) UNIQUE NOT NULL, -- Formato simulado: VK-XXXXXXXX
-        fecha_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE pedido_elementos (
-        id SERIAL PRIMARY KEY,
-        pedido_id INT REFERENCES pedidos(id) ON DELETE CASCADE,
-        producto_id INT REFERENCES productos(id) ON DELETE SET NULL,
-        cantidad INT NOT NULL CHECK (cantidad > 0),
-        precio_historico DECIMAL(10, 2) NOT NULL -- Resguarda el precio exacto cobrado en ese momento
-    );
-
-    CREATE TABLE seguimiento_envios (
-        id SERIAL PRIMARY KEY,
-        pedido_id INT REFERENCES pedidos(id) ON DELETE CASCADE,
-        estado_logistico VARCHAR(100) NOT NULL, -- 'Separando estoque', 'Em rota de entrega', 'Entregue'
-        detalles TEXT,
-        fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE metricas_tienda (
-        id SERIAL PRIMARY KEY,
-        tipo_evento VARCHAR(50) NOT NULL, -- 'visita_pagina', 'clique_producto', 'venda_concluida'
-        producto_id INT REFERENCES productos(id) ON DELETE SET NULL,
-        monto_venta DECIMAL(10, 2) DEFAULT 0.00,
-        fecha_evento TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
 `;
 
 async function inicializarBaseDatos() {
     try {
-        console.log('⏳ Conectando a PostgreSQL y recreando el esquema completo (11 tablas)...');
+        console.log('⏳ Conectando a PostgreSQL y creando el esquema de tablas...');
         await pool.query(crearTablasSQL);
-        console.log('✅ ¡Esquema integral de base de datos Voke-Simulación creado exitosamente!');
+        console.log('✅ ¡Esquema de base de datos e-commerce creado exitosamente!');
     } catch (error) {
-        console.error('❌ Error al inicializar las tablas de la base de datos:', error);
+        console.error('❌ Error al inicializar las tablas:', error);
     } finally {
         await pool.end();
     }
