@@ -1,9 +1,105 @@
 const pool = require('../config/db');
 
-// 1. POST /api/pedidos/checkout (Transformar el carrito en un pedido histórico)
+// // 1. POST /api/pedidos/checkout (Transformar el carrito en un pedido histórico)
+// const procesarCheckout = async (req, res) => {
+//     const usuarioId = req.usuario.id;
+//     const { metodoPago } = req.body; // 'Pix' o 'Cartão de Crédito'
+
+//     if (!metodoPago) {
+//         return res.status(400).json({ error: "Debe seleccionar un método de pago válido ('Pix' o 'Cartão de Crédito')." });
+//     }
+
+//     const client = await pool.connect();
+//     try {
+//         await client.query('BEGIN');
+
+//         // A. Obtener el carrito activo del usuario
+//         const carritoQuery = 'SELECT id FROM carritos WHERE usuario_id = \$1';
+//         const carritoRes = await client.query(carritoQuery, [usuarioId]);
+        
+//         if (carritoRes.rows.length === 0) {
+//             await client.query('ROLLBACK');
+//             return res.status(400).json({ error: "No se encontró un carrito activo para este usuario." });
+//         }
+//         const carritoId = carritoRes.rows[0].id;
+
+//         // B. Obtener los productos dentro de ese carrito junto con su precio actual
+//         const elementosQuery = `
+//             SELECT ce.producto_id, ce.cantidad, p.precio 
+//             FROM carrito_elementos ce
+//             JOIN productos p ON ce.producto_id = p.id
+//             WHERE ce.carrito_id = \$1
+//         `;
+//         const elementosRes = await client.query(elementosQuery, [carritoId]);
+
+//         if (elementosRes.rows.length === 0) {
+//             await client.query('ROLLBACK');
+//             return res.status(400).json({ error: "Tu carrito de compras está vacío." });
+//         }
+
+//         // C. Calcular el monto total de la compra en caliente
+//         const totalPedido = elementosRes.rows.reduce((acc, item) => acc + (parseFloat(item.precio) * item.cantidad), 0);
+
+//         // D. Generar una clave de rastreo simulada única con el prefijo de Voke
+//         const numeroAleatorio = Math.floor(10000000 + Math.random() * 90000000);
+//         const claveRastreo = `VK-${numeroAleatorio}`;
+
+//        // const claveRastreo = `VK-\${numeroAleatorio}`;
+
+//         // E. Insertar la cabecera del pedido (Por defecto queda 'Aguardando Pagamento')
+//         const queryPedido = `
+//             INSERT INTO pedidos (usuario_id, total, metodo_pago, estado_pago, clave_rastreo)
+//             VALUES (\$1, \$2, \$3, 'Aguardando Pagamento', \$4)
+//             RETURNING *;
+//         `;
+//         const pedidoRes = await client.query(queryPedido, [usuarioId, totalPedido, metodoPago, claveRastreo]);
+//         const nuevoPedidoId = pedidoRes.rows[0].id;
+
+//         // F. Mover los elementos congelando su precio en 'pedido_elementos'
+//         for (const item of elementosRes.rows) {
+//             const queryElementoPedido = `
+//                 INSERT INTO pedido_elementos (pedido_id, producto_id, cantidad, precio_historico)
+//                 VALUES (\$1, \$2, \$3, \$4);
+//             `;
+//             await client.query(queryElementoPedido, [nuevoPedidoId, item.producto_id, item.cantidad, item.precio]);
+//         }
+
+//         // G. Insertar el primer estado logístico en la línea de tiempo de envíos
+//         const queryEnvio = `
+//             INSERT INTO seguimiento_envios (pedido_id, estado_logistico, detalles)
+//             VALUES (\$1, 'Aguardando Pagamento', 'O pedido foi recebido pelo sistema de Voke e aguarda a confirmação do pagamento.');
+//         `;
+//         await client.query(queryEnvio, [nuevoPedidoId]);
+
+//         // H. ¡Limpieza! Vaciar el carrito de compras del usuario
+//         await client.query('DELETE FROM carrito_elementos WHERE carrito_id = \$1', [carritoId]);
+
+//         await client.query('COMMIT');
+
+//         res.status(201).json({
+//             mensaje: "¡Pedido procesado con éxito en el sistema!",
+//             pedido: {
+//                 id: nuevoPedidoId,
+//                 total: totalPedido,
+//                 metodo_pago: metodoPago,
+//                 estado_pago: "Aguardando Pagamento",
+//                 clave_rastreo: claveRastreo
+//             }
+//         });
+
+//     } catch (error) {
+//         await client.query('ROLLBACK');
+//         console.error("Error al procesar el checkout:", error);
+//         res.status(500).json({ error: "Error interno en el servidor al generar la orden de compra." });
+//     } finally {
+//         client.release();
+//     }
+// };
+
+// 1.1 POST /api/pedidos/checkout (Transformar el carrito en un pedido histórico con CONTROL DE INVENTARIO)
 const procesarCheckout = async (req, res) => {
     const usuarioId = req.usuario.id;
-    const { metodoPago } = req.body; // 'Pix' o 'Cartão de Crédito'
+    const { metodoPago } = req.body;
 
     if (!metodoPago) {
         return res.status(400).json({ error: "Debe seleccionar un método de pago válido ('Pix' o 'Cartão de Crédito')." });
@@ -23,12 +119,12 @@ const procesarCheckout = async (req, res) => {
         }
         const carritoId = carritoRes.rows[0].id;
 
-        // B. Obtener los productos dentro de ese carrito junto con su precio actual
+        // B. CORRECCIÓN/MEJORA: Traemos el producto_id, cantidad, precio Y EL STOCK ACTUAL de la tabla productos
         const elementosQuery = `
-            SELECT ce.producto_id, ce.cantidad, p.precio 
+            SELECT ce.producto_id, ce.cantidad, p.precio, p.nombre, p.stock 
             FROM carrito_elementos ce
             JOIN productos p ON ce.producto_id = p.id
-            WHERE ce.carrito_id = \$1
+            WHERE ce.carrito_id = $1
         `;
         const elementosRes = await client.query(elementosQuery, [carritoId]);
 
@@ -37,41 +133,58 @@ const procesarCheckout = async (req, res) => {
             return res.status(400).json({ error: "Tu carrito de compras está vacío." });
         }
 
-        // C. Calcular el monto total de la compra en caliente
+        // C. VALIDACIÓN DE INVENTARIO: Verificar antes de comprar que haya suficiente mercancía
+        for (const item of elementosRes.rows) {
+            if (item.cantidad > item.stock) {
+                await client.query('ROLLBACK');
+                return res.status(400).json({ 
+                    error: `Estoque insuficiente para o produto: "${item.nombre}". Unidades disponíveis: ${item.stock}.` 
+                });
+            }
+        }
+
+        // D. Calcular el monto total de la compra
         const totalPedido = elementosRes.rows.reduce((acc, item) => acc + (parseFloat(item.precio) * item.cantidad), 0);
 
-        // D. Generar una clave de rastreo simulada única con el prefijo de Voke
+        // E. Generar una clave de rastreo simulada única con comillas invertidas correctas
         const numeroAleatorio = Math.floor(10000000 + Math.random() * 90000000);
         const claveRastreo = `VK-${numeroAleatorio}`;
 
-       // const claveRastreo = `VK-\${numeroAleatorio}`;
-
-        // E. Insertar la cabecera del pedido (Por defecto queda 'Aguardando Pagamento')
+        // F. Insertar la cabecera del pedido
         const queryPedido = `
             INSERT INTO pedidos (usuario_id, total, metodo_pago, estado_pago, clave_rastreo)
-            VALUES (\$1, \$2, \$3, 'Aguardando Pagamento', \$4)
-            RETURNING *;
+            VALUES ($1, $2, $3, 'Aguardando Pagamento', $4)
+            RETURNING id;
         `;
         const pedidoRes = await client.query(queryPedido, [usuarioId, totalPedido, metodoPago, claveRastreo]);
         const nuevoPedidoId = pedidoRes.rows[0].id;
 
-        // F. Mover los elementos congelando su precio en 'pedido_elementos'
+        // G. Mover elementos, congelar precio Y RESTAR EL STOCK EN LA TABLA PRODUCTOS
         for (const item of elementosRes.rows) {
+            // 1. Insertar en el historial de facturación
             const queryElementoPedido = `
                 INSERT INTO pedido_elementos (pedido_id, producto_id, cantidad, precio_historico)
-                VALUES (\$1, \$2, \$3, \$4);
+                VALUES ($1, $2, $3, $4);
             `;
             await client.query(queryElementoPedido, [nuevoPedidoId, item.producto_id, item.cantidad, item.precio]);
+
+            // 2. ¡RESTA EN CALIENTE DEL INVENTARIO!
+            const queryRestarStock = `
+                UPDATE productos 
+                SET stock = stock - $1 
+                WHERE id = $2;
+            `;
+            await client.query(queryRestarStock, [item.cantidad, item.producto_id]);
         }
 
-        // G. Insertar el primer estado logístico en la línea de tiempo de envíos
+        // H. Insertar el primer estado logístico en la línea de tiempo de envíos
         const queryEnvio = `
             INSERT INTO seguimiento_envios (pedido_id, estado_logistico, detalles)
-            VALUES (\$1, 'Aguardando Pagamento', 'O pedido foi recebido pelo sistema de Voke e aguarda a confirmação do pagamento.');
+            VALUES ($1, 'Aguardando Pagamento', 'O pedido foi recebido pelo sistema de Voke e aguarda a confirmação do pagamento.');
         `;
         await client.query(queryEnvio, [nuevoPedidoId]);
 
-        // H. ¡Limpieza! Vaciar el carrito de compras del usuario
+        // I. Vaciar el carrito de compras del usuario
         await client.query('DELETE FROM carrito_elementos WHERE carrito_id = \$1', [carritoId]);
 
         await client.query('COMMIT');
@@ -89,12 +202,13 @@ const procesarCheckout = async (req, res) => {
 
     } catch (error) {
         await client.query('ROLLBACK');
-        console.error("Error al procesar el checkout:", error);
+        console.error("Error al procesar el checkout con inventario:", error);
         res.status(500).json({ error: "Error interno en el servidor al generar la orden de compra." });
     } finally {
         client.release();
     }
 };
+
 
 // 2. GET /api/pedidos/rastreio/:codigo (Consultar estado logístico de forma pública)
 const consultarRastreo = async (req, res) => {
