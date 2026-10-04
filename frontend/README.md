@@ -1,16 +1,51 @@
-# React + Vite
+# 🚀 Simulación Voke.com Brasil - Arquitectura E-Commerce Full-Stack
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este proyecto representa una réplica funcional de **Voke.com**, una de las plataformas líderes de e-commerce de tecnología corporativa en Brasil. Desarrollado de manera modular y escalable para el portafolio de **Turma58Toti-Diversidade**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠️ Tecnologías y Herramientas del Núcleo
+*   **Frontend:** React (Vite), Tailwind CSS (Estilos Corporativos), Axios (Manejo de Red) y React Router Dom (Navegación Dinámica).
+*   **Backend:** Node.js, Express (Framework de Servidor), Bcryptjs (Cifrado Criptográfico) y JSON Web Tokens (Seguridad de Sesión JWT).
+*   **Base de Datos Relacional:** PostgreSQL, pgAdmin 4 (Administración de Entorno local de 11 tablas).
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 📂 Arquitectura Especializada del Backend
 
-## Expanding the ESLint configuration
+La API posee 11 endpoints relacionales distribuidos en módulos estratégicos:
+1.  **Seguridad y Registro:** Transacciones relacionales atómicas (`BEGIN/COMMIT`) que enlazan las credenciales en la tabla `usuarios` y los perfiles extendidos brasileños en `clientes_perfil`.
+2.  **Catálogo Relacional:** Extracción masiva de productos cruzados mediante un `LEFT JOIN` relacional para empaquetar múltiples imágenes en arrays JSON nativos (`json_agg`).
+3.  **Control de Inventario y Checkout:** Al procesar la orden, verifica las existencias en frío de la tabla `productos`. Si hay stock, genera un código de rastreo único (ej: `VK-12345678`), congela los precios históricos de facturación y resta las unidades del inventario en vivo en un solo bloque seguro.
+4.  **Flujo Fintech y Logística:** Simulador financiero que procesa códigos "Copia e Cola" de Pix y tarjetas de crédito, actualizando de forma automática los estados logísticos en la base de datos.
+5.  **Motor Automatizado en Segundo Plano:** Script con un temporizador continuo que escanea las transacciones aprobadas y avanza automáticamente los despachos de `"Separando estoque"` a `"Em rota de entrega"` y `"Entregue"`.
+6.  **Analíticas Administrativas (Dashboard):** Consultas matemáticas avanzadas (`SUM`, `COUNT`) que calculan la facturación global, ticket medio de compra y generan alertas de reabastecimiento crítico si el stock baja de 5 unidades.
+7.  **Chatbot de Atención al Cliente:** Asistente inteligente integrado con expresiones regulares (regex) que extrae los códigos de rastreo textuales ingresados por el usuario e interroga a PostgreSQL para responder la fase logística exacta del paquete.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🚀 Instrucciones para Levantar el Entorno de Desarrollo
+
+### 1. Clonar el repositorio y configurar variables (.env)
+```bash
+git clone <URL_DE_TU_REPOSITORIO>
+```
+Cree un archivo `.env` dentro de la carpeta `/backend` con los parámetros correspondientes de su servidor local de PostgreSQL y su frase secreta de JWT (`JWT_SECRET`).
+
+### 2. Inicializar y Automatizar la Base de Datos
+Ingrese a la terminal del backend e instale los paquetes de Node:
+```bash
+cd backend
+npm install
+node init-db.js   # Crea las 11 tablas limpiando residuos previos
+node seed.js      # Inyecta las categorías y los 16 productos iniciales
+npm run dev       # Levanta el servidor Express continuo en el puerto 3001
+```
+
+### 3. Inicializar la Interfaz Gráfica
+Abra otra terminal en paralelo, ingrese al frontend e inicie el servidor de Vite:
+```bash
+cd frontend
+npm install
+npm run dev       # Enciende la tienda en http://localhost:5173
+``
