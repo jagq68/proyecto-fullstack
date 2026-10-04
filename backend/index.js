@@ -10,6 +10,8 @@ const productoRoutes = require('./routes/productoRoutes');
 const carritoRoutes = require('./routes/carritoRoutes'); // <-- Importación agregada
 const pedidoRoutes = require('./routes/pedidoRoutes');
 const pagoRoutes = require('./routes/pagoRoutes'); // <-- Importar rutas de pago
+const dashboardRoutes = require('./routes/dashboardRoutes'); // <-- Importar Dashboard
+const chatbotRoutes = require('./routes/chatbotRoutes'); // <-- Importar Chatbot
 
 
 
@@ -26,6 +28,8 @@ app.use('/api/produtos', productoRoutes);
 app.use('/api/carrinhos', carritoRoutes); // <-- Ruta registrada con éxito
 app.use('/api/pedidos', pedidoRoutes);
 app.use('/api/pagos', pagoRoutes); // <-- Registrar endpoint /api/pagos
+app.use('/api/dashboard', dashboardRoutes); // <-- Registrar Dashboard
+app.use('/api/chatbot', chatbotRoutes); // <-- Registrar Chatbot
 
 // Configuración de PostgreSQL
 const pool = new Pool({
