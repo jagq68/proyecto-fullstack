@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // <-- Importamos Link para la navegación sin recargar
 
 const Navbar = () => {
   return (
@@ -7,12 +6,12 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         
         {/* LOGOTIPO DE VOKE */}
-        <Link to="/" className="flex items-center space-x-2 cursor-pointer hover:opacity-90">
+        <div className="flex items-center space-x-2 cursor-pointer">
           <span className="text-xl font-black tracking-wider text-voke-cyan">voke</span>
           <span className="text-xs bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded uppercase font-bold tracking-widest scale-90">Corp</span>
-        </Link>
+        </div>
 
-        {/* BARRA DE BÚSQUEDA */}
+        {/* BARRA DE BÚSQUEDA MINIMALISTA (Inspirada en tu imagen) */}
         <div className="hidden md:flex flex-1 max-w-xl mx-8 relative">
           <input 
             type="text" 
@@ -24,16 +23,14 @@ const Navbar = () => {
 
         {/* ICONOS DE CONTROL */}
         <div className="flex items-center space-x-6 text-sm font-medium">
-          
-          {/* CORRECCIÓN: ENLACE ACTIVO HACIA LA PÁGINA DE LOGIN */}
-          <Link to="/login" className="flex items-center space-x-1 hover:text-voke-cyan cursor-pointer transition-colors">
+          <div className="flex items-center space-x-1 hover:text-voke-cyan cursor-pointer transition-colors">
             <span>👤</span>
             <span className="hidden sm:inline">Mi Cuenta</span>
-          </Link>
-
+          </div>
           <div className="flex items-center space-x-1 hover:text-voke-cyan cursor-pointer transition-colors relative">
             <span>🛒</span>
             <span className="hidden sm:inline">Carrito</span>
+            {/* Badge indicador del carrito */}
             <span className="absolute -top-2 -right-2 bg-voke-cyan text-voke-dark text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">0</span>
           </div>
         </div>
