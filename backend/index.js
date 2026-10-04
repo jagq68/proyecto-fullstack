@@ -8,6 +8,7 @@ const authRoutes = require('./routes/authRoutes');
 const categoriaRoutes = require('./routes/categoriaRoutes');
 const productoRoutes = require('./routes/productoRoutes');
 const carritoRoutes = require('./routes/carritoRoutes'); // <-- Importación agregada
+const pedidoRoutes = require('./routes/pedidoRoutes');
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/categorias', categoriaRoutes);
 app.use('/api/produtos', productoRoutes);
 app.use('/api/carrinhos', carritoRoutes); // <-- Ruta registrada con éxito
+app.use('/api/pedidos', pedidoRoutes);
 
 // Configuración de PostgreSQL
 const pool = new Pool({
