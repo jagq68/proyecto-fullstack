@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 
+const { iniciarSimuladorLogistico } = require('./config/simuladorLogistico');
+
 // IMPORTAR TODAS LAS RUTAS
 const authRoutes = require('./routes/authRoutes');
 const categoriaRoutes = require('./routes/categoriaRoutes');
@@ -30,6 +32,7 @@ app.use('/api/pedidos', pedidoRoutes);
 app.use('/api/pagos', pagoRoutes); // <-- Registrar endpoint /api/pagos
 app.use('/api/dashboard', dashboardRoutes); // <-- Registrar Dashboard
 app.use('/api/chatbot', chatbotRoutes); // <-- Registrar Chatbot
+
 
 // Configuración de PostgreSQL
 const pool = new Pool({
@@ -77,4 +80,6 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
     console.log(`🚀 Servidor backend escuchando en: http://localhost:${PORT}`);
+    // ENCENDER EL SIMULADOR LOGÍSTICO AUTOMÁTICO
+    iniciarSimuladorLogistico();
 });
