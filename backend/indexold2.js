@@ -7,7 +7,6 @@ const { Pool } = require('pg');
 const authRoutes = require('./routes/authRoutes');
 const categoriaRoutes = require('./routes/categoriaRoutes');
 const productoRoutes = require('./routes/productoRoutes');
-const carritoRoutes = require('./routes/carritoRoutes'); // <-- Importación agregada
 
 const app = express();
 
@@ -17,8 +16,7 @@ app.use(express.json());
 // ENGANCHAR LAS RUTAS A LA API
 app.use('/api/auth', authRoutes);
 app.use('/api/categorias', categoriaRoutes);
-app.use('/api/produtos', productoRoutes);
-app.use('/api/carrinhos', carritoRoutes); // <-- Ruta registrada con éxito
+app.use('/api/produtos', productoRoutes); // Mapeado exactamente a /api/produtos como pide tu escrito
 
 // Configuración de PostgreSQL
 const pool = new Pool({
@@ -36,7 +34,7 @@ app.get('/api/prueba', async (req, res) => {
         res.json({ 
             mensaje: "¡API de tu e-commerce funcionando!", 
             db_conexion: true,
-            hora_servidor: result.rows.now 
+            hora_servidor: result.rows[0].now 
         });
     } catch (error) {
         res.json({ 
