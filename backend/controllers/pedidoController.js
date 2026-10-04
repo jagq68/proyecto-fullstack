@@ -42,7 +42,9 @@ const procesarCheckout = async (req, res) => {
 
         // D. Generar una clave de rastreo simulada única con el prefijo de Voke
         const numeroAleatorio = Math.floor(10000000 + Math.random() * 90000000);
-        const claveRastreo = `VK-\${numeroAleatorio}`;
+        const claveRastreo = `VK-${numeroAleatorio}`;
+
+       // const claveRastreo = `VK-\${numeroAleatorio}`;
 
         // E. Insertar la cabecera del pedido (Por defecto queda 'Aguardando Pagamento')
         const queryPedido = `
