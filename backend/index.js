@@ -48,6 +48,22 @@ app.get('/api/prueba', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
+
+// MIDDLEWARE GLOBAL DE MANEJO DE ERRORES (Mantiene limpio tu código de caídas inesperadas)
+app.use((err, req, res, next) => {
+    console.error("🔴 Error Detectado en la Arquitectura:", err.stack);
+    
+    // Si es un error de violación de llave única de PostgreSQL (ej. email duplicado)
+    if (err.code === '23505') {
+        return res.status(400).json({ error: "Restricción de base de datos: El registro ya existe." });
+    }
+
+    res.status(500).json({ 
+        error: "Ocurrió un error interno en el servidor",
+        detalles: process.env.NODE_ENV === 'development' ? err.message : {}
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`🚀 Servidor backend escuchando en: http://localhost:${PORT}`);
 });
