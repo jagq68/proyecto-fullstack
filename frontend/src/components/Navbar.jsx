@@ -30,12 +30,16 @@ const Navbar = () => {
             <span>👤</span>
             <span className="hidden sm:inline">Mi Cuenta</span>
           </Link>
-
-          <div className="flex items-center space-x-1 hover:text-voke-cyan cursor-pointer transition-colors relative">
+          <Link to="/carrinho" className="flex items-center space-x-1 hover:text-voke-cyan cursor-pointer transition-colors relative">
             <span>🛒</span>
             <span className="hidden sm:inline">Carrito</span>
             <span className="absolute -top-2 -right-2 bg-voke-cyan text-voke-dark text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">0</span>
-          </div>
+          </Link>
+          {/* <div className="flex items-center space-x-1 hover:text-voke-cyan cursor-pointer transition-colors relative">
+            <span>🛒</span>
+            <span className="hidden sm:inline">Carrito</span>
+            <span className="absolute -top-2 -right-2 bg-voke-cyan text-voke-dark text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">0</span>
+          </div> */}
         </div>
 
       </div>
