@@ -1,49 +1,127 @@
-import React from 'react';
-import { Link } from 'react-router-dom'; // <-- Importamos Link para la navegación sin recargar
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import api from '../config/api';
 
 const Navbar = () => {
-  return (
-    <nav className="bg-voke-dark text-white sticky top-0 z-50 shadow-md">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        
-        {/* LOGOTIPO DE VOKE */}
-        <Link to="/" className="flex items-center space-x-2 cursor-pointer hover:opacity-90">
-          <span className="text-xl font-black tracking-wider text-voke-cyan">voke</span>
-          <span className="text-xs bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded uppercase font-bold tracking-widest scale-90">Corp</span>
-        </Link>
+  const navigate = useNavigate();
+  const [cantidadTotal, setCantidadTotal] = useState(0);
+  const [terminoBusqueda, setTerminoBusqueda] = useState('');
+  
+  const mensajesVoke = [
+    "Frete grátis para todo o Brasil em compras corporativas",
+    "Até 10x sem juros no cartão de crédito",
+    "Notebooks e Laptops reacondicionados com garantia de fábrica Voke",
+    "Ofertas especiais de Primavera - Confira nossa vitrine local"
+  ];
+  const [indiceMensaje, setIndiceMensaje] = useState(0);
 
-        {/* BARRA DE BÚSQUEDA */}
-        <div className="hidden md:flex flex-1 max-w-xl mx-8 relative">
+  useEffect(() => {
+    const temporizador = setInterval(() => {
+      setIndiceMensaje((prevIndice) => (prevIndice + 1) % mensajesVoke.length);
+    }, 4000);
+    return () => clearInterval(temporizador);
+  }, []);
+
+  const moverMensajeIzquierda = () => {
+    setIndiceMensaje((prevIndice) => (prevIndice - 1 + mensajesVoke.length) % mensajesVoke.length);
+  };
+
+  const moverMensajeDerecha = () => {
+    setIndiceMensaje((prevIndice) => (prevIndice + 1) % mensajesVoke.length);
+  };
+
+  // FUNCIÓN DE BÚSQUEDA REAL: Filtra al presionar Enter
+  const manejarBusquedaSubmit = (e) => {
+    e.preventDefault();
+    if (terminoBusqueda.trim()) {
+      navigate(`/?buscar=${encodeURIComponent(terminoBusqueda.trim())}`);
+    } else {
+      navigate('/');
+    }
+  };
+
+  // FUNCIÓN DE ENLACES: Filtra por categoría o marca directo a la URL
+  const filtrarPorFiltro = (valorFiltro) => {
+    if (valorFiltro === 'ofertas') {
+      navigate('/');
+    } else {
+      navigate(`/?buscar=${encodeURIComponent(valorFiltro)}`);
+    }
+  };
+
+  const consultarCantidadCarrito = async () => {
+    try {
+      const token = localStorage.getItem('voke_token');
+      if (!token) return setCantidadTotal(0);
+      const respuesta = await api.get('/carrinhos');
+      const items = respuesta.data.items || [];
+      setCantidadTotal(items.reduce((acc, curr) => acc + parseInt(curr.cantidad), 0));
+    } catch (error) {
+      console.error("Erro ao atualizar contador:", error);
+    }
+  };
+
+  useEffect(() => {
+    consultarCantidadCarrito();
+    window.addEventListener('carrito_actualizado', consultarCantidadCarrito);
+    return () => window.removeEventListener('carrito_actualizado', consultarCantidadCarrito);
+  }, []);
+
+  return (
+    <div>
+      
+      {/* 1. TOPE: BANNER AJUSTADO AL TEXTO */}
+      <div className="voke-top-carousel-black">
+        <div className="voke-carousel-content-wrapper">
+          <span className="voke-carousel-flecha" onClick={moverMensajeIzquierda}>&lt;</span>
+          <span className="voke-carousel-texto">{mensajesVoke[indiceMensaje]}</span>
+          <span className="voke-carousel-flecha" onClick={moverMensajeDerecha}>&gt;</span>
+        </div>
+      </div>
+
+      {/* 2. BARRA PRINCIPAL */}
+      <div className="voke-navbar-main">
+        <Link to="/" className="voke-nav-logo">voke</Link>
+
+        {/* RESTRUCTURACIÓN: EL BUSCADOR AHORA ES UN FORMULARIO FUNCIONAL */}
+        <form onSubmit={manejarBusquedaSubmit} className="voke-search-container">
           <input 
             type="text" 
-            placeholder="Encuentra lo que necesitas..." 
-            className="w-full bg-slate-800 text-slate-200 text-sm pl-4 pr-10 py-2 rounded-md border border-slate-700 focus:outline-none focus:border-voke-cyan placeholder-slate-500"
+            value={terminoBusqueda}
+            onChange={(e) => setTerminoBusqueda(e.target.value)}
+            placeholder="Busque o que você precisa..." 
+            className="voke-search-input"
           />
-          <span className="absolute right-3 top-2.5 text-slate-500 cursor-pointer">🔍</span>
-        </div>
+          <span className="voke-search-lupa" onClick={manejarBusquedaSubmit}>🔍</span>
+        </form>
 
-        {/* ICONOS DE CONTROL */}
-        <div className="flex items-center space-x-6 text-sm font-medium">
-          
-          {/* CORRECCIÓN: ENLACE ACTIVO HACIA LA PÁGINA DE LOGIN */}
-          <Link to="/login" className="flex items-center space-x-1 hover:text-voke-cyan cursor-pointer transition-colors">
-            <span>👤</span>
-            <span className="hidden sm:inline">Mi Cuenta</span>
-          </Link>
-          <Link to="/carrinho" className="flex items-center space-x-1 hover:text-voke-cyan cursor-pointer transition-colors relative">
+        <div className="voke-nav-controls">
+          <span className="voke-nav-link" title="Favoritos">🖤</span>
+          <Link to="/login" className="voke-nav-link" title="Minha Conta">👤</Link>
+          <Link to="/carrinho" className="voke-nav-link" title="Carrinho">
             <span>🛒</span>
-            <span className="hidden sm:inline">Carrito</span>
-            <span className="absolute -top-2 -right-2 bg-voke-cyan text-voke-dark text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">0</span>
+            <span className="voke-cart-badge">{cantidadTotal}</span>
           </Link>
-          {/* <div className="flex items-center space-x-1 hover:text-voke-cyan cursor-pointer transition-colors relative">
-            <span>🛒</span>
-            <span className="hidden sm:inline">Carrito</span>
-            <span className="absolute -top-2 -right-2 bg-voke-cyan text-voke-dark text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">0</span>
-          </div> */}
         </div>
-
       </div>
-    </nav>
+
+      {/* 3. FRANJA INFERIOR FUCSIA CON ENLACES FILTRADORES CONECTADOS */}
+      <div className="voke-menu-subbar">
+        <div className="voke-menu-hamburguesa">☰</div>
+        <div className="voke-menu-links">
+          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('ofertas')} style={{ cursor: 'pointer' }}>Ofertas de primavera</span>
+          <span>|</span>
+          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Apple')} style={{ cursor: 'pointer' }}>tienda Apple</span>
+          <span>|</span>
+          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Samsung')} style={{ cursor: 'pointer' }}>Tienda Samsung</span>
+          <span>|</span>
+          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Lenovo')} style={{ cursor: 'pointer' }}>Tienda Lenovo</span>
+          <span>|</span>
+          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Dell')} style={{ cursor: 'pointer' }}>Tienda Dell</span>
+        </div>
+      </div>
+
+    </div>
   );
 };
 

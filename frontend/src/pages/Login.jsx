@@ -1,143 +1,180 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../config/api';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [esLogin, setEsLogin] = useState(true);
-  const [tipoDocumento, setTipoDocumento] = useState('CPF');
+  const [fase, setFase] = useState('acceso');
+  const [doc, setDoc] = useState('CPF');
+  
   const [email, setEmail] = useState('');
-  const [contrasena, setContrasena] = useState('');
-  const [confirmarContrasena, setConfirmarContrasena] = useState('');
-  const [nomeCompleto, setNomeCompleto] = useState('');
-  const [cpfCnpj, setCpfCnpj] = useState('');
-  const [fechaNacimiento, setFechaNacimiento] = useState('');
+  const [pass, setPass] = useState('');
+  const [confPass, setConfPass] = useState('');
+  const [nombre, setNombre] = useState('');
+  const [numDoc, setNumDoc] = useState('');
+  const [fecha, setFecha] = useState('');
   const [sexo, setSexo] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [mensajeAlerta, setMensajeAlerta] = useState({ texto: '', esError: false });
+  const [tel, setTel] = useState('');
 
-  const manejarFormulario = async (e) => {
-    e.preventDefault();
-    setMensajeAlerta({ texto: '', esError: false });
-    if (!email || !contrasena) {
-      return setMensajeAlerta({ texto: 'Por favor, preencha e-mail e senha.', esError: true });
+  const [user, setUser] = useState(null);
+  const [alerta, setAlerta] = useState({ txt: '', err: false });
+
+  useEffect(() => {
+    const guardado = localStorage.getItem('voke_usuario');
+    if (guardado) {
+      const u = JSON.parse(guardado);
+      setUser(u); 
+      setFase('perfil');
+      setNombre(u.nome_completo || ''); 
+      setEmail(u.email || ''); 
+      setTel(u.telefono || '');
     }
+  }, []);
+
+  const ingresar = async (e) => {
+    e.preventDefault();
+    setAlerta({ txt: '', err: false });
     try {
-      if (esLogin) {
-        const res = await api.post('/auth/login', { email, contrasena });
-        localStorage.setItem('voke_token', res.data.token);
-        localStorage.setItem('voke_usuario', JSON.stringify(res.data.usuario));
-        setMensajeAlerta({ texto: 'Autenticação bem-sucedida! Redirecionando...', esError: false });
-        setTimeout(() => navigate('/'), 1500);
-      } else {
-        if (!nomeCompleto || !cpfCnpj || !fechaNacimiento || !sexo || !telefono || !confirmarContrasena) {
-          return setMensajeAlerta({ texto: 'Por favor, preencha todos os campos obrigatórios (*).', esError: true });
-        }
-        if (contrasena !== confirmarContrasena) {
-          return setMensajeAlerta({ texto: 'As senhas não coincidem. Verifique e tente novamente.', esError: true });
-        }
-        const datos = { email, contrasena, cpf_cnpj: cpfCnpj, nome_completo: nomeCompleto, fecha_nacimiento: fechaNacimiento, sexo, telefono, perfil: 'cliente' };
-        await api.post('/auth/register', datos);
-        setMensajeAlerta({ texto: 'Cadastro concluído com sucesso! Faça login para acessar.', esError: false });
-        setEsLogin(true);
-        setContrasena('');
-        setConfirmarContrasena('');
-      }
-    } catch (err) {
-      setMensajeAlerta({ texto: err.response?.data?.error || 'Erro interno no servidor.', esError: true });
+      const res = await api.post('/auth/login', { email, contrasena: pass });
+      localStorage.setItem('voke_token', res.data.token);
+      localStorage.setItem('voke_usuario', JSON.stringify(res.data.usuario));
+      setUser(res.data.usuario);
+      window.dispatchEvent(new Event('carrito_actualizado'));
+      setFase('perfil');
+    } catch (err) { 
+      setAlerta({ txt: 'E-mail ou senha incorretos.', err: true }); 
+    }
+  };
+
+  const registrar = async (e) => {
+    e.preventDefault();
+    if (pass !== confPass) return setAlerta({ txt: 'As senhas não coincidem.', err: true });
+    try {
+      const datos = { email, contrasena: pass, cpf_cnpj: numDoc, nome_completo: nombre, fecha_nacimiento: fecha, sexo, telefono: tel, perfil: 'cliente' };
+      const res = await api.post('/auth/register', datos);
+      localStorage.setItem('voke_token', res.data.token);
+      localStorage.setItem('voke_usuario', JSON.stringify(res.data.usuario));
+      setUser(res.data.usuario);
+      window.dispatchEvent(new Event('carrito_actualizado'));
+      setFase('perfil');
+    } catch (err) { 
+      setAlerta({ txt: 'Erro ao realizar cadastro.', err: true }); 
+    }
+  };
+  const modificar = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.put(`/auth/usuario/${user.id}`, { nome_completo: nombre, email, telefono: tel, contrasena: pass });
+      localStorage.setItem('voke_usuario', JSON.stringify(res.data.usuario));
+      setAlerta({ txt: 'Dados atualizados com sucesso!', err: false });
+    } catch (err) { setAlerta({ txt: 'Erro ao atualizar dados.', err: true }); }
+  };
+
+  const eliminar = async () => {
+    if (window.confirm("Deseja excluir permanentemente sua conta?")) {
+      try {
+        await api.delete(`/auth/usuario/${user.id}`);
+        localStorage.clear(); setUser(null); setFase('acceso');
+        window.dispatchEvent(new Event('carrito_actualizado'));
+        navigate('/');
+      } catch (err) { setAlerta({ txt: 'Erro ao deletar usuário.', err: true }); }
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 py-12">
-      <div className="bg-white w-full max-w-md rounded-lg shadow-sm border border-slate-200 p-6 md:p-8">
-        <div className="flex flex-col items-center mb-6">
-          <Link to="/" className="text-3xl font-black tracking-wider text-voke-dark">voke</Link>
-          <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest font-semibold">Simulação Loja Brasil</p>
+    <div className="voke-login-wrapper">
+      <div className="voke-login-card-box">
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <Link to="/" style={{ textDecoration: 'none', color: '#262626', fontSize: '32px', fontWeight: 'bold' }}>voke</Link>
+          <p style={{ fontSize: '10px', color: '#98A2B3', textTransform: 'uppercase', fontWeight: 'bold', margin: '4px 0 0 0' }}>Simulação Loja Brasil</p>
         </div>
 
-        {mensajeAlerta.texto && (
-          <div className={`p-3 rounded-md text-xs font-medium mb-4 text-center border ${mensajeAlerta.esError ? 'bg-red-50 text-red-600 border-red-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200'}`}>{mensajeAlerta.texto}</div>
+        {alerta.txt && (
+          <div style={{ padding: '10px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', marginBottom: '16px', textAlign: 'center', border: '1px solid', backgroundColor: alerta.err ? '#FFF5F5' : '#E6FFFA', color: alerta.err ? '#DC3545' : '#28A745', borderColor: alerta.err ? '#DEE2E6' : '#47CD89' }}>{alerta.txt}</div>
         )}
 
-        <div className="flex border-b border-slate-200 mb-6 text-sm font-medium">
-          <button type="button" onClick={() => { setEsLogin(true); setMensajeAlerta({ texto: '', esError: false }); }} className={`flex-1 pb-3 text-center ${esLogin ? 'border-b-2 border-voke-cyan text-voke-dark font-bold' : 'text-slate-400'}`}>Acessar Conta</button>
-          <button type="button" onClick={() => { setEsLogin(false); setMensajeAlerta({ texto: '', esError: false }); }} className={`flex-1 pb-3 text-center ${!esLogin ? 'border-b-2 border-voke-cyan text-voke-dark font-bold' : 'text-slate-400'}`}>Criar Cadastro</button>
-        </div>
+        {/* FASE 1: ACCESO INFORMATIVO */}
+        {fase === 'acceso' && (
+          <form onSubmit={ingresar}>
+            <div style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px 0' }}>Acceso</h3>
+              <p style={{ fontSize: '12px', color: '#6C757D', margin: 0 }}>¿Ya eres cliente de Voke?</p>
+            </div>
+            <div className="voke-form-group-block">
+              <label className="voke-form-label">Correo electrónico</label>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="voke-form-input-text" />
+            </div>
+            <div className="voke-form-group-block">
+              <label className="voke-form-label">Contraseña</label>
+              <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} className="voke-form-input-text" />
+            </div>
+            <button type="submit" className="voke-submit-btn-black">Para entrar</button>
+            <div className="voke-login-footer-info">
+              <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: '#262626' }}>Crear una cuenta</p>
+              <p style={{ margin: '0 0 8px 0' }}>¿Aún no tienes una cuenta de Voke?</p>
+              <span onClick={() => setFase('registro')} style={{ color: '#295991', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline' }}>Registro</span>
+            </div>
+          </form>
+        )}
 
-        <form className="space-y-4" onSubmit={manejarFormulario}>
-          {!esLogin && (
-            <>
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-2">Tipo de Documento *</label>
-                <div className="flex space-x-6 text-sm text-slate-700">
-                  <label className="flex items-center space-x-2 cursor-pointer">
-                    <input type="radio" name="docType" checked={tipoDocumento === 'CPF'} onChange={() => setTipoDocumento('CPF')} className="text-voke-cyan" /> <span>CPF</span>
-                  </label>
-                  <label className="flex items-center space-x-2 cursor-pointer">
-                    <input type="radio" name="docType" checked={tipoDocumento === 'CNPJ'} onChange={() => setTipoDocumento('CNPJ')} className="text-voke-cyan" /> <span>CNPJ</span>
-                  </label>
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">{tipoDocumento === 'CPF' ? 'CPF *' : 'CNPJ *'}</label>
-                <input type="text" value={cpfCnpj} onChange={(e) => setCpfCnpj(e.target.value)} placeholder={tipoDocumento === 'CPF' ? '000.000.000-00' : '00.000.000/0000-00'} className="w-full bg-white border border-slate-300 text-sm px-3 py-2 rounded-md focus:outline-none focus:border-voke-cyan text-slate-800" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Nome Completo *</label>
-                <input type="text" value={nomeCompleto} onChange={(e) => setNomeCompleto(e.target.value)} placeholder="Escreva seu nome completo" className="w-full bg-white border border-slate-300 text-sm px-3 py-2 rounded-md focus:outline-none focus:border-voke-cyan text-slate-800" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Data de Nascimento *</label>
-                <input type="date" value={fechaNacimiento} onChange={(e) => setFechaNacimiento(e.target.value)} className="w-full bg-white border border-slate-300 text-sm px-3 py-2 rounded-md focus:outline-none focus:border-voke-cyan text-slate-800" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Sexo *</label>
-                <select value={sexo} onChange={(e) => setSexo(e.target.value)} className="w-full bg-white border border-slate-300 text-sm px-3 py-2 rounded-md focus:outline-none focus:border-voke-cyan text-slate-800">
-                  <option value="">Selecione o sexo</option>
-                  <option value="M">Masculino</option>
-                  <option value="F">Feminino</option>
-                  <option value="O">Outro</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Telefone *</label>
-                <input type="text" value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="(00) 00000-0000" className="w-full bg-white border border-slate-300 text-sm px-3 py-2 rounded-md focus:outline-none focus:border-voke-cyan text-slate-800" />
-              </div>
-            </>
-          )}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">E-mail *</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Digite seu melhor e-mail" className="w-full bg-white border border-slate-300 text-sm px-3 py-2 rounded-md focus:outline-none focus:border-voke-cyan text-slate-800" />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Senha *</label>
-            <input type="password" value={contrasena} onChange={(e) => setContrasena(e.target.value)} placeholder="Digite sua senha" className="w-full bg-white border border-slate-300 text-sm px-3 py-2 rounded-md focus:outline-none focus:border-voke-cyan text-slate-800" />
-          </div>
-          
-          {/* AQUÍ QUEDÓ REUBICADO PERFECTAMENTE EL CAMPO ADENTRO DE LA COMPOSICIÓN */}
-          {!esLogin && (
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Confirmar Senha *</label>
-              <input type="password" value={confirmarContrasena} onChange={(e) => setConfirmarContrasena(e.target.value)} placeholder="Confirme sua senha" className="w-full bg-white border border-slate-300 text-sm px-3 py-2 rounded-md focus:outline-none focus:border-voke-cyan text-slate-800" />
+        {/* FASE 2: REGISTRO EXTENDIDO EXIGIDO */}
+        {fase === 'registro' && (
+          <form onSubmit={registrar}>
+            <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px' }}>Crear una cuenta</h3>
+            <div style={{ display: 'flex', gap: '16px', fontSize: '12px', marginBottom: '12px' }}>
+              <label><input type="radio" checked={doc === 'CPF'} onChange={() => setDoc('CPF')} /> CPF</label>
+              <label><input type="radio" checked={doc === 'CNPJ'} onChange={() => setDoc('CNPJ')} /> CNPJ</label>
             </div>
-          )}
+            <div className="voke-form-group-block"><label className="voke-form-label">{doc} *</label><input type="text" value={numDoc} onChange={(e) => setNumDoc(e.target.value)} className="voke-form-input-text" /></div>
+            <div className="voke-form-group-block"><label className="voke-form-label">Nombre completo *</label><input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} className="voke-form-input-text" /></div>
+            <div className="voke-form-group-block"><label className="voke-form-label">Fecha de nacimiento *</label><input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="voke-form-input-text" /></div>
+            <div className="voke-form-group-block"><label className="voke-form-label">Sexo *</label><select value={sexo} onChange={(e) => setSexo(e.target.value)} className="voke-form-input-text"><option value="">Sexo</option><option value="M">Masculino</option><option value="F">Feminino</option></select></div>
+            <div className="voke-form-group-block"><label className="voke-form-label">Teléfono *</label><input type="text" value={tel} onChange={(e) => setTel(e.target.value)} className="voke-form-input-text" /></div>
+            <div className="voke-form-group-block"><label className="voke-form-label">Correo electrónico *</label><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="voke-form-input-text" /></div>
+            <div className="voke-form-group-block"><label className="voke-form-label">Contraseña *</label><input type="password" value={pass} onChange={(e) => setPass(e.target.value)} className="voke-form-input-text" /></div>
+            <div className="voke-form-group-block"><label className="voke-form-label">Confirmar Contraseña *</label><input type="password" value={confPass} onChange={(e) => setConfPass(e.target.value)} className="voke-form-input-text" /></div>
+            
+            {/* CONSEJOS DE SEGURIDAD EXIGIDOS */}
+            <div style={{ backgroundColor: '#F8F9FA', border: '1px solid #DEE2E6', borderRadius: '4px', padding: '12px', fontSize: '11px', color: '#6C757D', marginBottom: '16px', lineHeight: '1.4' }}>
+              <p style={{ fontWeight: 'bold', margin: '0 0 6px 0' }}>Consejos:</p>
+              <p style={{ margin: '0 0 6px 0' }}>Le sugerimos que no incluya datos personales, así como sus contraseñas más recientes utilizadas aquí en Voke o en otros sitios web.</p>
+              <p style={{ margin: 0 }}>• Mínimo de 8 caracteres<br />• Letras mayúsculas y minúsculas (A/a)<br />• Al menos 1 número (148)<br />• Caracteres especiales (@\$#)<br />• No utilice secuencias (123/Abc)</p>
+            </div>
 
-          {!esLogin && (
-            <div className="bg-slate-50 border border-slate-200 rounded-md p-3 text-[11px] text-slate-500 space-y-1">
-              <p className="font-semibold text-slate-600 mb-1">Sua senha deve conter pelo menos:</p>
-              <p>• Mínimo de 8 caracteres</p>
-              <p>• Pelo menos 1 letra maiúscula</p>
-              <p>• Pelo menos 1 número e 1 caractere especial</p>
+            {/* CANALES DE NOTIFICACIÓN OPCIONALES */}
+            <div style={{ borderTop: '1px solid #DEE2E6', paddingTop: '12px', marginBottom: '16px' }}>
+              <label className="voke-form-label" style={{ display: 'block', marginBottom: '6px' }}>Canales de notificación (opcional)</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12px' }}>
+                <label><input type="checkbox" /> correo electronico</label>
+                <label><input type="checkbox" /> teléfono</label>
+                <label><input type="checkbox" /> WhatsApp</label>
+                <label><input type="checkbox" /> SMS</label>
+              </div>
             </div>
-          )}
-          <button type="submit" className="w-full bg-voke-dark hover:bg-slate-800 text-white text-sm font-medium py-2.5 rounded-full transition-colors mt-2">{esLogin ? 'Para entrar' : 'Concluir Cadastro'}</button>
-          {esLogin && (
-            <div className="text-center mt-4">
-              <span className="text-xs text-voke-cyan hover:underline cursor-pointer font-medium">Esqueceu sua senha?</span>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
+              <button type="button" onClick={() => setFase('acceso')} className="voke-submit-btn-black" style={{ backgroundColor: '#6C757D', width: 'auto', padding: '10px 20px' }}>Volver</button>
+              <button type="submit" className="voke-submit-btn-black" style={{ backgroundColor: '#295991', width: 'auto', padding: '10px 20px' }}>Continuar con el registro</button>
             </div>
-          )}
-        </form>
+          </form>
+        )}
+
+        {/* FASE 3: MODIFICACIÓN Y ELIMINACIÓN CRUD DEL CLIENTE AGREGADO */}
+        {fase === 'perfil' && user && (
+          <form onSubmit={modificar} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0, borderBottom: '1px solid #DEE2E6', paddingBottom: '8px' }}>Dados do Cliente</h3>
+            <div className="voke-form-group-block"><label className="voke-form-label">Nome Completo</label><input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} className="voke-form-input-text" /></div>
+            <div className="voke-form-group-block"><label className="voke-form-label">E-mail</label><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="voke-form-input-text" /></div>
+            <div className="voke-form-group-block"><label className="voke-form-label">Telefone</label><input type="text" value={tel} onChange={(e) => setTel(e.target.value)} className="voke-form-input-text" /></div>
+            <div className="voke-form-group-block"><label className="voke-form-label">Nova Senha (Modificar Clave)</label><input type="password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="Preencha se desejar alterar" className="voke-form-input-text" /></div>
+            <button type="submit" className="voke-submit-btn-black" style={{ backgroundColor: '#295991' }}>Modificar Dados do Registro (PUT)</button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
+              <button type="button" onClick={() => { localStorage.clear(); setUser(null); setFase('acceso'); }} className="voke-submit-btn-black" style={{ backgroundColor: '#6C757D', padding: '10px' }}>Sair</button>
+              <button type="button" onClick={eliminar} className="voke-submit-btn-black" style={{ backgroundColor: '#DC3545', padding: '10px' }}>Eliminar Conta (DELETE)</button>
+            </div>
+          </form>
+        )}
+
       </div>
     </div>
   );

@@ -1,111 +1,666 @@
+/* ==========================================================================
+   HOJA DE ESTILOS CSS PURO - SIMULACIÓN E-COMMERCE VOKE BRASIL
+   ========================================================================== */
+
+/* VARIABLES NATIVAS DEL SITIO REAL VOKE.COM */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+    --voke-almost-white: #F8F9FA;
+    --voke-almost-black: #343434;
+    --voke-green: #28A745;
+    --voke-dark-blue: #173150;
+    --voke-white: #FFFFFF;
+    --voke-black: #262626;
+    --voke-menu-beige: #F5F3ED;
+    --voke-light-gray: #DEE2E6;
+    --voke-gray: #ADB5BD;
+    --voke-pink: #fe97c5;
+    --voke-blue: #295991; /* Azul corporativo oficial exigido */
+    --voke-red: #DC3545;
+    --voke-yellow: #F2BF4F;
+    --main-font: "Verdana", "Segoe UI", sans-serif;
+}
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+/* CONFIGURACIÓN BASE DEL NAVEGADOR */
+/* ==========================================================================
+   ARQUITECTURA DE DISEÑO CSS PURO - VOKE BRASIL (ESTRUCTURA CORREGIDA)
+   ========================================================================== */
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.voke-layout-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
 
-  @media (max-width: 1024px) {
+/* ==========================================================================
+   SOLUCIÓN AL ACOPLAMIENTO IZQUIERDO: SECCIONES DE LA CABECERA (NAVBAR)
+   ========================================================================== */
+.voke-top-carousel-black {
+    background-color: var(--voke-black);
+    color: var(--voke-white);
+    font-size: 11px;
+    font-weight: bold;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: center;
+    /*align-items: center;*/
+    box-sizing: border-box;
+    width: 100%;
+    /*overflow: hidden;*/
+}
+
+.voke-carousel-content-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Espacio corto y estético entre flechas y texto */
+    max-width: 100%;
+}
+
+/* Fuerza la separación simétrica de los 3 bloques principales */
+.voke-navbar-main {
+    background-color: var(--voke-menu-beige);
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    border-bottom: 1px solid var(--voke-light-gray);
+}
+
+.voke-nav-logo {
+    text-decoration: none;
+    color: var(--voke-black);
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Contenedor central del buscador */
+.voke-search-container {
+    flex: 1;
+    max-width: 500px;
+    margin: 0 20px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.voke-search-input {
+    width: 100%;
+    padding: 10px 40px 10px 16px;
+    border-radius: 20px; /* BUSCADOR REDONDEADO REAL */
+    border: 1px solid var(--voke-gray);
+    font-size: 13px;
+    outline: none;
+    background-color: var(--voke-white);
+    box-sizing: border-box;
+}
+
+.voke-search-lupa {
+    position: absolute;
+    right: 14px;
+    color: var(--voke-black);
+    cursor: pointer;
+}
+
+/* Bloque derecho de controles: Alinea el corazón, usuario y carro */
+.voke-nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    font-size: 18px;
+}
+
+.voke-nav-link {
+    text-decoration: none;
+    color: var(--voke-black);
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.voke-cart-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: var(--voke-pink);
+    color: var(--voke-black);
+    font-size: 10px;
+    font-weight: bold;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* FRANJA INFERIOR FUCSIA REQUERIDA */
+.voke-menu-subbar {
+    background-color: var(--voke-pink);
+    padding: 8px 24px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.voke-menu-hamburguesa {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--voke-black);
+    cursor: pointer;
+    position: absolute;
+    left: 24px;
+}
+
+.voke-menu-links {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: var(--voke-black);
+}
+
+/* ==========================================================================
+   ESTILOS DE RECUADRO DE LOGIN AMIGABLE
+   ========================================================================== */
+.voke-login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 16px;
+    flex-grow: 1;
+}
+
+.voke-login-card-box {
+    background-color: var(--voke-white);
+    width: 100%;
+    max-width: 440px;
+    border: 1px solid var(--voke-light-gray);
+    border-radius: 8px;
+    padding: 32px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.voke-form-group-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 14px;
+}
+
+.voke-form-label {
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--voke-black);
+}
+
+.voke-form-input-text {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--voke-gray);
+    border-radius: 4px;
+    font-size: 13px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.voke-submit-btn-black {
+    width: 100%;
+    background-color: var(--voke-black);
+    color: var(--voke-white);
+    font-size: 12px;
+    font-weight: bold;
+    padding: 12px;
+    border-radius: 24px;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.voke-login-footer-info {
+    text-align: center;
+    padding-top: 16px;
+    border-top: 1px solid var(--voke-light-gray);
+    margin-top: 16px;
+    font-size: 12px;
+}
+
+/* ==========================================================================
+   ESTILOS DEL FOOTER AZUL CORPORATIVO COMPLETAMENTE PURGADO
+   ========================================================================== */
+.voke-footer-blue-box {
+    background-color: var(--voke-blue) !important;
+    color: var(--voke-white) !important;
+    font-size: 12px;
+    padding: 40px 24px;
+    border-top: 4px solid var(--voke-pink);
+    margin-top: auto;
+}
+
+.voke-footer-grid-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    justify-content: space-between;
+}
+
+.voke-footer-column {
+    flex: 1;
+    min-width: 220px;
+}
+
+.voke-footer-title {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding-bottom: 6px;
+}
+
+.voke-footer-text {
+    color: #F2F4F7;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.voke-footer-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: #F2F4F7;
+}
+.voke-carousel-flecha {
+    cursor: pointer;
+    /*padding: 0 10px;*/
+    user-select: none;
+    font-size: 12px;
+    /*transition: opacity 0.2s;*/
+    color: var(--voke-pink);
+}
+
+.voke-carousel-flecha:hover {
+    opacity: 0.6;
+}
+
+.voke-carousel-texto {
+    /*flex-grow: 1;*/
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* */
+/* ==========================================================================
+   ESTILOS EXCLUSIVOS PARA LAS TARJETAS DEL CATÁLOGO (CSS PURO)
+   ========================================================================== */
+
+/* Contenedor de la vitrina: Alinea las tarjetas una al lado de la otra */
+.voke-vitrina-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 16px;
+}
+
+/* Caja independiente de cada laptop/smartphone */
+.voke-tarjeta-producto {
+    background-color: var(--voke-white);
+    border: 1px solid var(--voke-light-gray);
+    border-radius: 6px;
+    padding: 20px;
+    width: 260px;
+    min-height: 380px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-sizing: border-box;
+}
+
+/* Fila superior interna de la tarjeta (Stock a la izquierda, iconos a la derecha) */
+.voke-tarjeta-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--voke-light-gray);
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+    width: 100%;
+}
+
+.voke-tarjeta-stock {
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #F6D489;
+    background-color: #FBEBC8;
+}
+
+.voke-tarjeta-acciones {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.voke-tarjeta-btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
     font-size: 16px;
-  }
+    padding: 0;
+    outline: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+/* Contenedor e imagen de la laptop (Mismo tamaño simétrico) */
+.voke-tarjeta-imagen-box {
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 12px 0;
+    width: 100%;
 }
 
-body {
-  margin: 0;
+.voke-tarjeta-img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+/* Detalles de precios y textos de la tarjeta */
+.voke-tarjeta-detalles {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+.voke-tarjeta-titulo {
+    font-size: 11px;
+    font-weight: bold;
+    margin: 0;
+    height: 32px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2; /* PROPIEDAD ESTÁNDAR AGREGADA */
+    -webkit-box-orient: vertical;
+    -webkit-box-orient: vertical;
+    line-height: 16px;
+    text-transform: uppercase;
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+.voke-tarjeta-condicion {
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--voke-text-muted);
+    text-transform: uppercase;
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
+
+.voke-tarjeta-precios-box {
+    border-top: 1px solid var(--voke-light-gray);
+    padding-top: 8px;
+    margin-top: 4px;
+}
+
+.voke-tarjeta-precio-pix {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--voke-black);
+}
+
+.voke-tarjeta-precio-cuotas {
+    font-size: 10px;
+    color: var(--voke-text-muted);
+    margin-top: 2px;
+}
+
+.voke-tarjeta-envio {
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--voke-green);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+/* */
+/* ==========================================================================
+   ESTILOS EXCLUSIVOS PARA EL CARRITO DE COMPRAS (CSS PURO)
+   ========================================================================== */
+
+/* Caja contenedora para la notificación flotante */
+.voke-notif-fixed {
+    position: fixed;
+    top: 96px;
+    right: 16px;
+    z-index: 50;
+}
+
+/* Área central de contenido con límite de ancho */
+.voke-cart-main-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 16px;
+}
+
+/* Título de la sección */
+.voke-cart-title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 24px;
+}
+
+/* Caja de carrito vacío adaptada */
+.voke-cart-empty-box {
+    max-width: 100%;
+    text-align: center;
+}
+
+/* Distribución horizontal: Items a la izquierda (flex 2) y Resumen a la derecha (flex 1) */
+.voke-cart-flex-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.voke-cart-items-column {
+    flex: 2;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.voke-cart-summary-column {
+    flex: 1;
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: fit-content;
+}
+
+/* Forzado de tarjeta horizontal en el listado */
+.voke-product-card-horizontal {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Ajustes de los bloques de descripción e inputs dentro de la fila */
+.voke-cart-item-image-frame {
+    width: 140px;
+    min-width: 140px;
+    border: 1px solid var(--voke-light-gray);
+    border-radius: 4px;
+    padding: 8px;
+    background-color: var(--voke-white);
+}
+
+.voke-cart-item-details {
+    flex: 1;
+    margin: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.voke-cart-item-title-fixed {
+    height: auto;
+    display: block;
+}
+
+.voke-cart-quantity-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0;
+}
+
+.voke-cart-quantity-selector {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--voke-light-gray);
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: var(--voke-gray-light);
+}
+
+.voke-cart-btn-counter {
+    width: 28px;
+    height: 28px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.voke-cart-number-display {
+    min-width: 32px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Botón Excluir limpio */
+.voke-cart-btn-excluir {
+    background-color: transparent;
+    border: 1px solid var(--voke-light-gray);
+    color: var(--voke-text-muted);
+    font-size: 11px;
+    padding: 6px 10px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.voke-cart-btn-excluir:hover {
+    color: var(--voke-red);
+    border-color: var(--voke-red);
+    background-color: #FFF5F5;
+}
+
+/* Fila de totales en el resumen */
+.voke-cart-summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--voke-text-muted);
+}
+
+.voke-cart-summary-total-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: bold;
+    border-top: 1px solid var(--voke-light-gray);
+    padding-top: 12px;
+    margin-top: 4px;
+}
+/**/
+/* NOTIFICACIÓN FLOTANTE ELEGANTE (TOAST ESTILO VOKE) */
+.voke-toast-notificacion {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    background-color: var(--voke-black);
+    color: var(--voke-white);
+    font-size: 12px;
+    font-weight: bold;
+    padding: 12px 24px;
+    border-radius: 4px;
+    border-left: 4px solid var(--voke-pink); /* Detalle elegante en fucsia */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: vokeFadeIn 0.3s ease-out;
+}
+
+@keyframes vokeFadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/**/
+/* ==========================================================================
+   CONTENEDORES GENERALES DEL CATÁLOGO PURIFICADOS
+   ========================================================================== */
+
+/* Contenedor central de la vitrina */
+.voke-catalogo-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 16px;
+}
+
+/* Fila del encabezado (As melhores ofertas) */
+.voke-catalogo-header-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--voke-light-gray);
+    padding-bottom: 16px;
+}
+
+/* Icono del rayo decorativo */
+.voke-catalogo-rayo {
+    color: var(--voke-pink);
     font-size: 20px;
-  }
-}
-p {
-  margin: 0;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+/* Título de ofertas */
+.voke-catalogo-titulo-principal {
+    font-size: 20px;
+    fontWeight: bold;
+    text-transform: uppercase;
+    margin: 0;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+/* Contenedor del estado de carga */
+.voke-catalogo-cargando-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 96px 0;
+    gap: 12px;
 }

@@ -4,37 +4,20 @@ import Login from './pages/Login';
 import Catalogo from './pages/Catalogo';
 import Carrito from './pages/Carrito';
 
-
 function App() {
   return (
     <Router>
-      <Routes>
-        {/* Ruta principal: Muestra la vitrina de ofertas de Voke Brasil */}
-        <Route path="/" element={<Catalogo />} />
-        {/* Ruta de acceso: Formulario corporativo con selector CPF/CNPJ */}
-        <Route path="/login" element={<Login />} />
-        {/* 1. CAMBIO: Subimos la ruta del carrito arriba del comodín */}
-        <Route path="/carrinho" element={<Carrito />} />
-        {/* Redirección automática si escriben cualquier otra ruta inválida */}
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
+      {/* Caja contenedora maestra de CSS Puro que empuja el Footer al fondo */}
+      <div className="voke-layout-wrapper">
+        <Routes>
+          <Route path="/" element={<Catalogo />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/carrinho" element={<Carrito />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </div>
     </Router>
   );
 }
+
 export default App;
-
-//--------------
-// import React from 'react';
-// import Catalogo from './pages/Catalogo';
-// import Login from './pages/Login'; // <-- Importamos la pantalla de login
-
-
-// function App() {
-//   return (
-//     <>
-//       <Catalogo />
-//     </>
-//   );
-// }
-
-// export default App;

@@ -1,31 +1,18 @@
-const { Pool } = require('pg');
-
-// const pool = new Pool({
-//     user: process.env.DB_USER,
-//     password: process.env.DB_PASSWORD,
-//     host: process.env.DB_HOST,
-//     port: process.env.DB_PORT,
-//     database: process.env.DB_NAME
-// });
-
-const pool = require('../config/db'); // Importación limpia y unificada
+const pool = require('../config/db'); 
 
 // 1. GET /api/carrinhos (Obtener el carrito del usuario autenticado)
 const obtenerCarrito = async (req, res) => {
-    // Extraemos el id del usuario directamente desde el token validado por el middleware
     const usuarioId = req.usuario.id;
 
     try {
-        // Buscamos o aseguramos que el usuario tenga una cabecera de carrito creada
         let carritoRes = await pool.query('SELECT id FROM carritos WHERE usuario_id = \$1', [usuarioId]);
         
         if (carritoRes.rows.length === 0) {
             carritoRes = await pool.query('INSERT INTO carritos (usuario_id) VALUES (\$1) RETURNING id', [usuarioId]);
         }
         
-        const carritoId = carritoRes.rows[0].id;
+        const carritoId = carritoRes.rows.at(0).id;
 
-        // Traemos todos los elementos del carrito cruzando los datos con la tabla de productos e imágenes
         const queryElementos = `
             SELECT ce.producto_id, p.nombre, p.precio, ce.cantidad,
                    (p.precio * ce.cantidad) AS subtotal,
@@ -37,8 +24,6 @@ const obtenerCarrito = async (req, res) => {
         `;
         
         const elementos = await pool.query(queryElementos, [carritoId]);
-
-        // Calculamos el costo total general acumulado en el carrito
         const totalGeneral = elementos.rows.reduce((acc, item) => acc + parseFloat(item.subtotal), 0);
 
         res.json({
@@ -54,38 +39,69 @@ const obtenerCarrito = async (req, res) => {
     }
 };
 
-// 2. POST /api/carrinhos (Agregar producto o actualizar su cantidad en el carrito)
+// 2. POST /api/carrinhos (Agregar producto o actualizar su cantidad de forma segura en Postgres)
 const agregarAlCarrito = async (req, res) => {
     const usuarioId = req.usuario.id;
-    const { productoId, cantidad } = req.body;
+    const { productoId, cantidad } = req.body; // Recibe 1 para sumar o -1 para restar
 
-    if (!productoId || !cantidad || cantidad <= 0) {
-        return res.status(400).json({ error: "Debe suministrar un productoId válido y una cantidad mayor a cero." });
+    if (!productoId || cantidad === undefined || cantidad === 0) {
+        return res.status(400).json({ error: "Debe suministrar un productoId válido y una cantidad diferente de cero." });
     }
 
     try {
-        // 1. Obtener o crear el carrito del usuario
+        // Asegurar la cabecera del carrito
         let carritoRes = await pool.query('SELECT id FROM carritos WHERE usuario_id = \$1', [usuarioId]);
         if (carritoRes.rows.length === 0) {
             carritoRes = await pool.query('INSERT INTO carritos (usuario_id) VALUES (\$1) RETURNING id', [usuarioId]);
         }
-        const carritoId = carritoRes.rows[0].id;
+        const carritoId = carritoRes.rows.at(0).id;
 
-        // 2. Insertar el elemento. Si ya existe la combinación carrito_id + producto_id, se actualiza sumando la cantidad.
-        const queryInsertar = `
-            INSERT INTO carrito_elementos (carrito_id, producto_id, cantidad)
-            VALUES ($1, $2, $3)
-            ON CONFLICT (carrito_id, producto_id)
-            DO UPDATE SET cantidad = carrito_elementos.cantidad + EXCLUDED.cantidad
-            RETURNING *;
-        `;
+        // SOLUÇÃO TRANSACCIONAL INDEPENDIENTE: Verificamos si el artículo ya existe en la base de datos
+        const verificarExistencia = await pool.query(
+            'SELECT cantidad FROM carrito_elementos WHERE carrito_id = \$1 AND producto_id = \$2',
+            [carritoId, productoId]
+        );
 
-        const resultado = await pool.query(queryInsertar, [carritoId, productoId, cantidad]);
+        if (verificarExistencia.rows.length > 0) {
+            const cantidadActual = verificarExistencia.rows.at(0).cantidad;
+            const nuevaCantidad = cantidadActual + cantidad;
 
-        res.status(200).json({
-            mensaje: "¡Producto gestionado en el carrito con éxito!",
-            elemento: resultado.rows[0]
-        });
+            // REGLA SOLICITADA: Si el cálculo da 0 o menos, borramos la fila físicamente y liberamos stock
+            if (nuevaCantidad <= 0) {
+                await pool.query(
+                    'DELETE FROM carrito_elementos WHERE carrito_id = \$1 AND producto_id = \$2',
+                    [carritoId, productoId]
+                );
+                return res.status(200).json({
+                    mensaje: "El producto llegó a cero y fue removido del carrito exitosamente.",
+                    elemento: null
+                });
+            } else {
+                // Si es mayor a cero, ejecutamos un UPDATE puro sobre la columna evitando el ON CONFLICT rígido
+                const resultadoUpdate = await pool.query(
+                    'UPDATE carrito_elementos SET cantidad = \$1 WHERE carrito_id = \$2 AND producto_id = \$3 RETURNING *',
+                    [nuevaCantidad, carritoId, productoId]
+                );
+                return res.status(200).json({
+                    mensaje: "Cantidad actualizada con éxito.",
+                    elemento: resultadoUpdate.rows.at(0)
+                });
+            }
+        } else {
+            // Si el producto no existe en el carrito, solo lo insertamos si la cantidad inicial es positiva
+            if (cantidad <= 0) {
+                return res.status(400).json({ error: "No se puede registrar un producto nuevo con cantidad menor o igual a cero." });
+            }
+            
+            const resultadoInsert = await pool.query(
+                'INSERT INTO carrito_elementos (carrito_id, producto_id, cantidad) VALUES (\$1, \$2, \$3) RETURNING *',
+                [carritoId, productoId, cantidad]
+            );
+            return res.status(200).json({
+                mensaje: "Producto añadido al carrito con éxito.",
+                elemento: resultadoInsert.rows.at(0)
+            });
+        }
 
     } catch (error) {
         console.error("Error al añadir al carrito:", error);
@@ -99,14 +115,12 @@ const eliminarDelCarrito = async (req, res) => {
     const { productoId } = req.params;
 
     try {
-        // Buscamos el ID del carrito del usuario
         const carritoRes = await pool.query('SELECT id FROM carritos WHERE usuario_id = \$1', [usuarioId]);
         if (carritoRes.rows.length === 0) {
             return res.status(404).json({ error: "Carrito no encontrado para este usuario." });
         }
-        const carritoId = carritoRes.rows[0].id;
+        const carritoId = carritoRes.rows.at(0).id;
 
-        // Eliminamos el registro de la tabla intermedia
         const resultado = await pool.query(
             'DELETE FROM carrito_elementos WHERE carrito_id = \$1 AND producto_id = \$2 RETURNING *',
             [carritoId, productoId]

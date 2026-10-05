@@ -11,12 +11,10 @@ const Carrito = () => {
   const [cargando, setCargando] = useState(true);
   const [notificacion, setNotificacion] = useState('');
 
-  // 1. Cargar el contenido real del carrito calculando totales desde el Backend
   const obtenerCarritoDeBD = async () => {
     try {
       const token = localStorage.getItem('voke_token');
       if (!token) return setCargando(false);
-
       const respuesta = await api.get('/carrinhos');
       setElementos(respuesta.data.items || []);
       setTotalGeneral(respuesta.data.total || 0);
@@ -31,83 +29,159 @@ const Carrito = () => {
     obtenerCarritoDeBD();
   }, []);
 
-  // 2. Acción para remover un producto por completo utilizando Axios
-  const manejarEliminarProducto = async (productoId) => {
+  const manejarEliminarProducto = async (productoId, nombreProducto) => {
     try {
       await api.delete(`/carrinhos/${productoId}`);
-      setNotificacion('❌ Produto removido do carrinho.');
-      obtenerCarritoDeBD(); // Recargamos el estado en vivo
-      setTimeout(() => setNotificacion(''), 3000);
+      setNotificacion(`❌ "${nombreProducto}" foi removido e o item retornou ao estoque.`);
+      window.dispatchEvent(new Event('carrito_actualizado'));
+      obtenerCarritoDeBD();
+      setTimeout(() => setNotificacion(''), 4000);
     } catch (error) {
       console.error("Erro ao deletar item:", error);
     }
   };
-  // 3. Simular el proceso de Checkout enviando el pago por Pix
-  const manejarCheckoutFluido = async () => {
+
+  // SINCRONIZACIÓN ASÍNCRONA TOTAL CON EL BACKEND REFORMADO
+  const manejarModificarCantidad = async (productoId, cantidadActual, nombreProducto, accion) => {
+    let nuevaCantidad = accion === 'sumar' ? cantidadActual + 1 : cantidadActual - 1;
+
+    // REGLA: Validación de cero con cuadro de confirmación para retornar stock
+    if (nuevaCantidad <= 0) {
+      const confirmarExcluir = window.confirm(
+        `Você está prestes a reduzir a quantidade a zero. Deseja remover "${nombreProducto}" do carrinho? O produto voltará ao seu estoque respectivo.`
+      );
+      if (confirmarExcluir) {
+        await manejarEliminarProducto(productoId, nombreProducto);
+      }
+      return;
+    }
+
     try {
-      setNotificacion('⏳ Processando seu pedido na Voke...');
+      // Enviamos el valor relativo (+1 o -1) al backend tolerante
+      const valorCambio = accion === 'sumar' ? 1 : -1;
       
-      // Lanzamos la orden al checkout transaccional del backend
-      const resPedido = await api.post('/pedidos/checkout', { metodoPago: 'Pix' });
-      const { id, total } = resPedido.data.pedido;
-
-      // Disparamos la pasarela automatizada con el ID de la factura generada
-      await api.post('/pagos/procesar', { pedidoId: id, metodoPago: 'Pix' });
-
-      setNotificacion('🎉 Pedido Pago e Aprovado com sucesso!');
-      setElementos([]);
-      setTotalGeneral(0);
+      await api.post('/carrinhos', { 
+        productoId: parseInt(productoId), 
+        cantidad: valorCambio 
+      });
+      
+      // Sincroniza la burbuja numérica del Navbar de inmediato
+      window.dispatchEvent(new Event('carrito_actualizado'));
+      
+      // Forzamos a React a leer los nuevos totales calculados en PostgreSQL
+      await obtenerCarritoDeBD();
     } catch (error) {
-      console.error("Erro no checkout simulado:", error);
-      setNotificacion('❌ Falha ao processar checkout.');
+      console.error("Erro ao alterar quantidade no carrinho:", error);
+      obtenerCarritoDeBD();
     }
   };
 
+  const manejarCheckoutFluido = async () => {
+    try {
+      setNotificacion('⏳ Processando seu pedido na Voke...');
+      await api.post('/pedidos/checkout', { metodoPago: 'Pix' });
+      setNotificacion('🎉 Pedido Pago e Aprovado com sucesso!');
+      setElementos([]);
+      setTotalGeneral(0);
+      window.dispatchEvent(new Event('carrito_actualizado'));
+    } catch (error) {
+      console.error("Erro no checkout:", error);
+      setNotificacion('❌ Falha ao processar checkout.');
+    }
+  };
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col justify-between relative">
+    <div className="voke-layout-wrapper">
       <div>
         <Navbar />
+        
         {notificacion && (
-          <div className="fixed top-20 right-4 z-50 bg-voke-dark text-white text-xs font-semibold px-4 py-3 rounded-lg shadow-lg border border-slate-700">
+          <div className="voke-alerta-box voke-alerta-success voke-notif-fixed">
             {notificacion}
           </div>
         )}
 
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <h2 className="text-2xl font-bold text-voke-dark mb-6 tracking-tight">Seu Carrinho de Compras</h2>
+        <div className="voke-cart-main-container">
+          <h2 className="voke-cart-title">Seu Carrinho de Compras</h2>
 
           {cargando ? (
-            <div className="text-center py-10 text-sm text-slate-500">Carregando itens...</div>
+            <div className="voke-alerta-box">
+              <p>Carregando itens...</p>
+            </div>
           ) : elementos.length === 0 ? (
-            <div className="bg-white rounded-lg p-8 border border-slate-200 text-center shadow-sm">
-              <p className="text-slate-500 text-sm mb-4">Seu carrinho da Voke está vazio atualmente.</p>
-              <Link to="/" className="inline-block bg-voke-dark text-white text-xs font-medium px-6 py-2 rounded-full hover:bg-slate-800">Voltar às compras</Link>
+            <div className="voke-login-card-box voke-cart-empty-box">
+              <p className="voke-form-subtitle-text">Seu carrinho da Voke está vazio atualmente.</p>
+              <Link to="/" className="voke-submit-btn-black">Voltar às compras</Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* LISTADO DE ITEMS DEL CARRITO */}
-              <div className="md:col-span-2 space-y-4">
+            <div className="voke-cart-flex-layout">
+              
+              {/* LISTADO DE ARTÍCULOS A LA IZQUIERDA */}
+              <div className="voke-cart-items-column">
                 {elementos.map((item) => (
-                  <div key={item.producto_id} className="bg-white border border-slate-200 rounded-lg p-4 flex items-center justify-between shadow-sm">
-                    <img src={item.imagen_url || 'https://placeholder.com'} alt={item.nombre} className="h-16 w-16 object-contain border border-slate-100 p-1 rounded" />
-                    <div className="flex-1 mx-4">
-                      <h4 className="text-xs font-bold text-slate-800 line-clamp-1">{item.nombre}</h4>
-                      <p className="text-[11px] text-slate-400 mt-1">Quantidade: {item.cantidad}</p>
-                      <p className="text-xs font-semibold text-voke-dark mt-1">R\$ {parseFloat(item.precio).toFixed(2)}</p>
+                  <div key={item.producto_id} className="voke-product-card voke-product-card-horizontal">
+                    
+                    {/* CONTENEDOR DE IMAGEN AL TAMAÑO DEL CATÁLOGO */}
+                    <div className="voke-cart-item-image-frame">
+                      <img src={item.imagen_url && item.imagen_url.length > 0 ? item.imagen_url : 'https://placeholder.com'} alt={item.nombre} className="voke-tarjeta-img" />
                     </div>
-                    <button type="button" onClick={() => manejarEliminarProducto(item.producto_id)} className="text-slate-400 hover:text-red-500 text-sm font-medium px-2">✕</button>
+
+                    {/* DESCRIPCIÓN Y SELECTORES COMPLETAMENTE ENLAZADOS */}
+                    <div className="voke-cart-item-details">
+                      <h4 className="voke-tarjeta-titulo voke-cart-item-title-fixed">
+                        {item.nombre}
+                      </h4>
+                      
+                      <div className="voke-cart-quantity-row">
+                        <span className="voke-form-subtitle-text">Quantidade:</span>
+                        <div className="voke-cart-quantity-selector">
+                          <button 
+                            type="button" 
+                            onClick={() => manejarModificarCantidad(item.producto_id, item.cantidad, item.nombre, 'restar')}
+                            className="voke-cart-btn-counter"
+                          >
+                            -
+                          </button>
+                          <span className="voke-cart-number-display">
+                            {item.cantidad}
+                          </span>
+                          <button 
+                            type="button" 
+                            onClick={() => manejarModificarCantidad(item.producto_id, item.cantidad, item.nombre, 'sumar')}
+                            className="voke-cart-btn-counter"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+
+                      <p className="voke-tarjeta-precio-pix">R\$ {parseFloat(item.precio).toFixed(2)}</p>
+                    </div>
+                    
+                    {/* BOTÓN TEXTUAL EXCLUIR */}
+                    <div>
+                      <button 
+                        type="button" 
+                        onClick={() => manejarEliminarProducto(item.producto_id, item.nombre)} 
+                        className="voke-cart-btn-excluir"
+                        title="Excluir produto"
+                      >
+                        🗑️ Excluir
+                      </button>
+                    </div>
+
                   </div>
                 ))}
               </div>
 
-              {/* RESUMEN FINANCIERO Y CHECKOUT (Diseño Voke) */}
-              <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm h-fit space-y-4">
-                <h3 className="text-sm font-bold text-voke-dark border-b border-slate-100 pb-2">Resumo do Pedido</h3>
-                <div className="flex justify-between text-xs text-slate-600"><span>Subtotal:</span><span>R\$ {totalGeneral.toFixed(2)}</span></div>
-                <div className="flex justify-between text-xs text-slate-600"><span>Frete (Simulado):</span><span className="text-emerald-600 font-semibold">Grátis</span></div>
-                <div className="flex justify-between text-sm font-bold text-voke-dark border-t border-slate-100 pt-2"><span>Total:</span><span>R\$ {totalGeneral.toFixed(2)}</span></div>
-                <button type="button" onClick={manejarCheckoutFluido} className="w-full bg-voke-dark hover:bg-slate-800 text-white text-xs font-medium py-2.5 rounded-full transition-colors">Finalizar Compra (Pix)</button>
+              {/* CUADRO DE RESUMEN DE PAGO A LA DERECHA */}
+              <div className="voke-login-card-box voke-cart-summary-column">
+                <h3 className="voke-form-title-text">Resumo do Pedido</h3>
+                <div className="voke-cart-summary-row"><span>Subtotal:</span><span className="voke-form-label">R\$ {totalGeneral.toFixed(2)}</span></div>
+                <div className="voke-cart-summary-row"><span>Frete:</span><span className="voke-tarjeta-envio">Grátis</span></div>
+                <div className="voke-cart-summary-total-row"><span>Total:</span><span>R\$ {totalGeneral.toFixed(2)}</span></div>
+                <button type="button" onClick={manejarCheckoutFluido} className="voke-submit-btn-black">Finalizar Compra (Pix)</button>
               </div>
+
             </div>
           )}
         </div>
