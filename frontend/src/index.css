@@ -650,7 +650,7 @@
 /* Título de ofertas */
 .voke-catalogo-titulo-principal {
     font-size: 20px;
-    fontWeight: bold;
+    font-weight: bold;
     text-transform: uppercase;
     margin: 0;
 }
@@ -663,4 +663,445 @@
     justify-content: center;
     padding: 96px 0;
     gap: 12px;
+}
+/**/
+/* ==========================================================================
+   ESTILOS COMPONENTE LOGIN - VARIABLES OFICIALES VOKE
+   ========================================================================== */
+
+.voke-login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--voke-almost-white);
+  font-family: var(--main-font);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.voke-login-card-box {
+  background-color: var(--voke-white);
+  border: 1px solid var(--voke-light-gray);
+  border-radius: 8px;
+  padding: 40px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
+}
+
+/* Cabecera y Logotipo */
+.voke-logo-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.voke-logo-text {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--voke-black);
+  text-decoration: none;
+  letter-spacing: -1px;
+  text-transform: lowercase;
+}
+
+.voke-logo-sub {
+  font-size: 13px;
+  color: var(--voke-almost-black);
+  margin: 4px 0 0 0;
+}
+
+/* Bloques de Títulos internos */
+.voke-form-title-block {
+  margin-bottom: 24px;
+}
+
+.voke-form-title-text {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--voke-dark-blue);
+  margin: 0 0 6px 0;
+}
+
+.voke-form-title-text-profile {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--voke-dark-blue);
+  margin: 0 0 6px 0;
+  border-bottom: 1px solid var(--voke-light-gray);
+  padding-bottom: 12px;
+}
+
+.voke-form-subtitle-text {
+  font-size: 14px;
+  color: var(--voke-almost-black);
+  margin: 0;
+}
+
+/* Formularios y Campos de Entrada */
+.voke-form-group-block {
+  margin-bottom: 18px;
+}
+
+.voke-form-group-block-spaced {
+  margin-top: 18px;
+  margin-bottom: 18px;
+}
+
+.voke-form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--voke-almost-black);
+  margin-bottom: 6px;
+}
+
+.voke-form-input-text {
+  width: 100%;
+  height: 44px;
+  border: 1px solid var(--voke-gray);
+  border-radius: 4px;
+  padding: 0 14px;
+  font-size: 14px;
+  color: var(--voke-black);
+  background-color: var(--voke-white);
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.voke-form-input-text:focus {
+  outline: none;
+  border-color: var(--voke-blue);
+}
+
+.voke-form-input-text:disabled {
+  background-color: var(--voke-light-gray);
+  color: var(--voke-gray);
+  cursor: not-allowed;
+}
+
+/* Selectores de Radio (CPF / CNPJ) */
+.voke-radio-group {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.voke-radio-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--voke-black);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+/* Caja de Alertas (Success y Error) */
+.voke-alerta-box {
+  padding: 12px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.voke-alerta-error {
+  background-color: var(--voke-menu-beige);
+  border: 1px solid var(--voke-red);
+  color: var(--voke-red);
+}
+
+.voke-alerta-success {
+  background-color: var(--voke-almost-white);
+  border: 1px solid var(--voke-green);
+  color: var(--voke-green);
+}
+
+/* Consejos de Contraseña */
+.voke-consejos-box {
+  background-color: var(--voke-menu-beige);
+  border: 1px solid var(--voke-light-gray);
+  border-radius: 4px;
+  padding: 14px;
+  margin-bottom: 18px;
+}
+
+.voke-consejos-desc {
+  font-size: 12px;
+  color: var(--voke-almost-black);
+  margin: 4px 0 10px 0;
+  line-height: 1.4;
+}
+
+.voke-consejos-list {
+  font-size: 11px;
+  color: var(--voke-black);
+  padding-left: 0;
+  margin: 0;
+  list-style: none;
+  line-height: 1.6;
+}
+
+/* Canales de Notificación */
+.voke-notif-subtext {
+  font-size: 12px;
+  color: var(--voke-almost-black);
+  margin: 0 0 10px 0;
+}
+
+.voke-notif-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.voke-notif-label {
+  font-size: 13px;
+  color: var(--voke-almost-black);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+/* Validación de Seguridad (Caja de Alerta del CRUD) */
+.voke-crud-seguridad-box {
+  background-color: var(--voke-menu-beige);
+  border: 1px solid var(--voke-light-gray);
+  border-radius: 4px;
+  padding: 14px;
+  margin-top: 20px;
+}
+
+.voke-form-label-alert {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--voke-red);
+  margin-bottom: 8px;
+}
+
+/* Enlaces y Textos de Navegación */
+.voke-login-footer-info {
+  border-top: 1px solid var(--voke-light-gray);
+  margin-top: 24px;
+  padding-top: 20px;
+}
+
+.voke-login-link-blue {
+  display: inline-block;
+  color: var(--voke-blue);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 6px;
+  text-decoration: none;
+}
+
+.voke-login-link-blue:hover {
+  text-decoration: underline;
+}
+
+.voke-logo-header-forgot {
+  text-align: center;
+  margin-top: 14px;
+}
+
+.voke-login-link-blue-small {
+  color: var(--voke-blue);
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* Botones de Acción */
+.voke-submit-btn-black {
+  width: 100%;
+  height: 46px;
+  background-color: var(--voke-black);
+  color: var(--voke-white);
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.voke-submit-btn-black:hover {
+  opacity: 0.9;
+}
+
+.voke-buttons-flex {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.voke-btn-volver {
+  height: 44px;
+  padding: 0 20px;
+  background-color: var(--voke-white);
+  color: var(--voke-almost-black);
+  border: 1px solid var(--voke-gray);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.voke-btn-volver:hover {
+  background-color: var(--voke-almost-white);
+}
+
+.voke-btn-continuar {
+  flex: 1;
+  height: 44px;
+  background-color: var(--voke-blue);
+  color: var(--voke-white);
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.voke-btn-continuar:hover {
+  opacity: 0.9;
+}
+
+/* Botones para Acciones CRUD del Perfil */
+.voke-buttons-flex-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.voke-btn-eliminar {
+  height: 44px;
+  padding: 0 16px;
+  background-color: var(--voke-white);
+  color: var(--voke-red);
+  border: 1px solid var(--voke-red);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.voke-btn-eliminar:hover {
+  background-color: var(--voke-red);
+  color: var(--voke-white);
+}
+/**/
+/* ==========================================================================
+   NUEVAS REGLAS CSS PARA EL PERFIL CRUD - LOGIN.JSX (FASE 3)
+   ========================================================================== */
+
+.voke-perfil-container {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+}
+
+/* Formularios de secciones independientes */
+.voke-profile-section-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.voke-profile-section-form-spaced {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--voke-light-gray);
+  padding-top: 24px;
+}
+
+/* Subtítulos de segmentos específicos */
+.voke-form-title-subsegment {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--voke-dark-blue);
+  margin: 0 0 4px 0;
+}
+
+/* Botón para actualizar Datos Personales */
+.voke-btn-salvar-datos {
+  width: 100%;
+  height: 44px;
+  background-color: var(--voke-blue);
+  color: var(--voke-white);
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: opacity 0.2s ease;
+}
+
+.voke-btn-salvar-datos:hover {
+  opacity: 0.9;
+}
+
+/* Botón para actualizar la Clave */
+.voke-btn-salvar-clave {
+  width: 100%;
+  height: 44px;
+  background-color: var(--voke-black);
+  color: var(--voke-white);
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: opacity 0.2s ease;
+}
+
+.voke-btn-salvar-clave:hover {
+  opacity: 0.9;
+}
+
+/* Zona de eliminación de cuenta */
+.voke-profile-delete-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-top: 1px solid var(--voke-light-gray);
+  padding-top: 24px;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.voke-delete-warning-text {
+  font-size: 13px;
+  color: var(--voke-almost-black);
+  margin: 0 0 12px 0;
+}
+
+/* Ajuste del botón eliminar dentro del contenedor */
+.voke-profile-delete-zone .voke-btn-eliminar {
+  width: 100%;
+  height: 44px;
+  background-color: var(--voke-white);
+  color: var(--voke-red);
+  border: 1px solid var(--voke-red);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.voke-profile-delete-zone .voke-btn-eliminar:hover {
+  background-color: var(--voke-red);
+  color: var(--voke-white);
 }

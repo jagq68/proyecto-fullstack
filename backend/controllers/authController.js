@@ -116,5 +116,143 @@ const loginUsuario = async (req, res) => {
         res.status(500).json({ error: "Error interno del servidor al iniciar sesión." });
     }
 };
+// 3. MODIFICAR DATOS BÁSICOS DEL PERFIL (PUT)
+const modificarDatosBasicos = async (req, res) => {
+    const { id } = req.params;
+    const { nome_completo, telefono } = req.body;
 
-module.exports = { registrarUsuario, loginUsuario };
+    try {
+        const query = `
+            UPDATE clientes_perfil 
+            SET nome_completo = $1, telefono = $2 
+            WHERE usuario_id = $3
+            RETURNING *;
+        `;
+        const result = await pool.query(query, [nome_completo, telefono, id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Perfil de usuario no encontrado." });
+        }
+
+        res.json({
+            mensaje: "¡Datos actualizados con éxito!",
+            usuario: { id, nome_completo, telefono }
+        });
+    } catch (error) {
+        console.error("Error al modificar datos:", error);
+        res.status(500).json({ error: "Error interno del servidor al actualizar datos." });
+    }
+};
+
+// 4. MODIFICAR EXCLUSIVAMENTE LA CLAVE (PUT CON VALIDACIÓN)
+const modificarContrasena = async (req, res) => {
+    const { id } = req.params;
+    const { contrasenaAnterior, nuevaContrasena } = req.body;
+
+    try {
+        // Buscar la contraseña actual encriptada
+        const userQuery = 'SELECT * FROM usuarios WHERE id = \$1';
+        const userResult = await pool.query(userQuery, [id]);
+
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ error: "Usuario no encontrado." });
+        }
+
+        const usuario = userResult.rows[0];
+
+        // Validar contraseña anterior
+        const contraseñaCorrecta = await bcrypt.compare(contrasenaAnterior, usuario.contrasena);
+        if (!contraseñaCorrecta) {
+            return res.status(401).json({ error: "A senha anterior está incorreta." });
+        }
+
+        // Encriptar la nueva contraseña
+        const salt = await bcrypt.genSalt(10);
+        const nuevaEncriptada = await bcrypt.hash(nuevaContrasena, salt);
+
+        // Actualizar en la tabla
+        await pool.query('UPDATE usuarios SET contrasena = \$1 WHERE id = \$2', [nuevaEncriptada, id]);
+
+        res.json({ mensaje: "¡Contraseña actualizada con éxito!" });
+    } catch (error) {
+        console.error("Error al modificar contraseña:", error);
+        res.status(500).json({ error: "Error interno del servidor al actualizar contraseña." });
+    }
+};
+
+// 5. ELIMINAR CUENTA DE USUARIO PERMANENTEMENTE (DELETE)
+// 5. ELIMINAR CUENTA DE USUARIO PERMANENTEMENTE (DELETE)
+const eliminarUsuario = async (req, res) => {
+    const { id } = req.params;
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // 1. Eliminamos primero el perfil extendido usando $1
+        const deletePerfilQuery = 'DELETE FROM clientes_perfil WHERE usuario_id = $1;';
+        await client.query(deletePerfilQuery, [id]);
+
+        // 2. Eliminamos las credenciales principales usando $1 (Corregido el escape)
+        const deleteUsuarioQuery = 'DELETE FROM usuarios WHERE id = $1 RETURNING id;';
+        const resUsuario = await client.query(deleteUsuarioQuery, [id]);
+
+        if (resUsuario.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: "O usuário não foi encontrado no sistema." });
+        }
+
+        await client.query('COMMIT');
+        res.json({ mensaje: "¡Cuenta de usuario y perfil eliminados con éxito!" });
+
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error("Error al eliminar usuario en el backend:", error);
+        res.status(500).json({ error: "Erro interno do servidor ao deletar usuário." });
+    } finally {
+        client.release();
+    }
+};
+
+// const eliminarUsuario = async (req, res) => {
+//     const { id } = req.params;
+
+//     // Conectamos un cliente de la pool para procesar la transacción de forma aislada
+//     const client = await pool.connect();
+//     try {
+//         await client.query('BEGIN');
+
+//         // 1. Eliminamos primero el perfil extendido en 'clientes_perfil' por las llaves foráneas
+//         const deletePerfilQuery = 'DELETE FROM clientes_perfil WHERE usuario_id = $1;';
+//         await client.query(deletePerfilQuery, [id]);
+
+//         // 2. Eliminamos las credenciales principales en la tabla 'usuarios'
+//         const deleteUsuarioQuery = 'DELETE FROM usuarios WHERE id = $1 RETURNING id;';
+//         const resUsuario = await client.query(deleteUsuarioQuery, [id]);
+
+//         // Si la consulta no devuelve filas, significa que el ID enviado no existía
+//         if (resUsuario.rows.length === 0) {
+//             await client.query('ROLLBACK');
+//             return res.status(404).json({ error: "O usuário não foi encontrado no sistema." });
+//         }
+
+//         // Confirmamos de manera definitiva la remoción en la base de datos
+//         await client.query('COMMIT');
+
+//         res.json({ 
+//             mensaje: "¡Cuenta de usuario y perfil eliminados con éxito del sistema!" 
+//         });
+
+//     } catch (error) {
+//         // Si ocurre cualquier falla de red o de base de datos, abortamos el borrado
+//         await client.query('ROLLBACK');
+//         console.error("Error al eliminar usuario en el backend:", error);
+//         res.status(500).json({ error: "Erro interno do servidor ao deletar usuário do banco de dados." });
+//     } finally {
+//         client.release();
+//     }
+// };
+
+module.exports = {registrarUsuario,loginUsuario,modificarDatosBasicos,modificarContrasena,eliminarUsuario};
+
+//module.exports = { registrarUsuario, loginUsuario };
