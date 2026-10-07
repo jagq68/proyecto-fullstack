@@ -26,15 +26,23 @@ async function poblarBaseDatos() {
         }
 
         console.log(`⏳ Insertando ${productos.length} productos y distribuyendo sus imágenes...`);
-
-        // 2. Insertar Productos e Imágenes mapeados
+        // 2. Insertar Productos con STOCK disponible para la pasarela de pagos e Imágenes mapeados
         for (const prod of productos) {
             const queryProducto = `
-                INSERT INTO productos (nombre, precio, categoria_id) 
-                VALUES ($1, $2, $3) 
+                INSERT INTO productos (nombre, precio, stock, categoria_id) 
+                VALUES ($1, $2, $3, $4) 
                 RETURNING id;
             `;
-            const resProd = await pool.query(queryProducto, [prod.nombre, prod.precio, prod.categoryId]);
+            
+            // Inyectamos un inventario semilla de 20 unidades a cada artículo del JSON
+            const stockSemilla = 20; 
+
+            const resProd = await pool.query(queryProducto, [
+                prod.nombre, 
+                prod.precio, 
+                stockSemilla, 
+                prod.categoryId
+            ]);
             const productoIdAsignado = resProd.rows[0].id;
 
             if (prod.imagenes && prod.imagenes.length > 0) {
@@ -47,6 +55,27 @@ async function poblarBaseDatos() {
                 }
             }
         }
+
+        // 2. Insertar Productos e Imágenes mapeados
+        // for (const prod of productos) {
+        //     const queryProducto = `
+        //         INSERT INTO productos (nombre, precio, categoria_id) 
+        //         VALUES ($1, $2, $3) 
+        //         RETURNING id;
+        //     `;
+        //     const resProd = await pool.query(queryProducto, [prod.nombre, prod.precio, prod.categoryId]);
+        //     const productoIdAsignado = resProd.rows[0].id;
+
+        //     if (prod.imagenes && prod.imagenes.length > 0) {
+        //         for (const urlImg of prod.imagenes) {
+        //             const queryImagen = `
+        //                 INSERT INTO producto_imagenes (producto_id, url) 
+        //                 VALUES ($1, $2);
+        //             `;
+        //             await pool.query(queryImagen, [productoIdAsignado, urlImg]);
+        //         }
+        //     }
+        // }
 
         console.log('✅ ¡La base de datos se ha poblado exitosamente con todas las categorías, productos e imágenes!');
     } catch (error) {

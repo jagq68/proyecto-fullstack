@@ -1450,3 +1450,66 @@
   font-size: 12px;
   color: var(--voke-gray);
 }
+/**/
+/* ==========================================================================
+   ESTILOS COMPONENTE CHECKOUT Y PASARELA DE PAGOS
+   ========================================================================== */
+
+.voke-checkout-box-maestra {
+  background-color: var(--voke-white);
+  border: 1px solid var(--voke-light-gray);
+  border-radius: 8px;
+  padding: 30px;
+  width: 100%;
+  margin-top: 20px;
+  box-sizing: border-box;
+}
+
+.voke-checkout-section-segment {
+  margin-bottom: 24px;
+}
+
+.voke-tarjeta-campos-container {
+  margin-top: 16px;
+  padding: 20px;
+  background-color: var(--voke-menu-beige);
+  border: 1px solid var(--voke-light-gray);
+  border-radius: 6px;
+}
+
+.voke-checkout-resumen-seccion {
+  padding-top: 20px;
+  margin-top: 24px;
+  border-top: 2px dashed var(--voke-light-gray);
+}
+
+.voke-resumen-fila-precio {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.voke-checkout-total-destacado {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--voke-blue);
+  font-family: var(--main-font);
+}
+
+.voke-descuento-mensaje-verde {
+  color: var(--voke-green) !important;
+  font-weight: 600;
+  margin-top: -6px;
+  margin-bottom: 16px;
+}
+
+.voke-btn-finalizar-checkout {
+  background-color: var(--voke-blue) !important;
+  height: 50px !important;
+  font-size: 16px !important;
+}
+
+.voke-btn-finalizar-checkout:hover {
+  background-color: var(--voke-dark-blue) !important;
+}

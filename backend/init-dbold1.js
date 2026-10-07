@@ -29,12 +29,10 @@ const crearTablasSQL = `
         nombre VARCHAR(100) NOT NULL UNIQUE
     );
 
-    -- TABLA PRODUCTOS (Corregida: Se añade la columna STOCK para el control de inventario)
     CREATE TABLE productos (
         id SERIAL PRIMARY KEY,
         nombre VARCHAR(255) NOT NULL,
         precio DECIMAL(10, 2) NOT NULL,
-        stock INT NOT NULL DEFAULT 0 CHECK (stock >= 0), -- <-- COLUMNA CRUCIAL PARA REBAJAR INVENTARIO
         categoria_id INT REFERENCES categorias(id) ON DELETE SET NULL
     );
 
@@ -80,19 +78,13 @@ const crearTablasSQL = `
     );
 
     -- 3. NUEVAS TABLAS DE LA SIMULACIÓN DE VOKE.COM BRASIL
-       -- TABLA PEDIDOS (Corregida: Se añaden las columnas logísticas y financieras para el Checkout)
     CREATE TABLE pedidos (
         id SERIAL PRIMARY KEY,
         usuario_id INT REFERENCES usuarios(id) ON DELETE RESTRICT,
         total DECIMAL(10, 2) NOT NULL,
-        metodo_pago VARCHAR(50) NOT NULL, -- 'Pix', 'Credito', 'Debito'
-        cuotas INT NOT NULL DEFAULT 1 CHECK (cuotas >= 1 AND cuotas <= 10), -- <-- PARCELAS
+        metodo_pago VARCHAR(50) NOT NULL, -- 'Pix', 'Cartão de Crédito'
         estado_pago VARCHAR(30) NOT NULL DEFAULT 'Aguardando Pagamento', -- 'Pago Aprovado', 'Recusado'
-        status_envio VARCHAR(50) NOT NULL DEFAULT 'Pendiente', -- 'Pendiente', 'Despachado', 'En camino', 'Entregado'
-        clave_rastreo VARCHAR(50) UNIQUE, -- Removido el NOT NULL estricto si se genera de forma asíncrona o autoincremental
-        cep VARCHAR(15) NOT NULL, -- <-- DIRECCIÓN HISTÓRICA DEL DESPACHO
-        direccion TEXT NOT NULL,
-        ciudad VARCHAR(100) NOT NULL,
+        clave_rastreo VARCHAR(50) UNIQUE NOT NULL, -- Formato simulado: VK-XXXXXXXX
         fecha_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 

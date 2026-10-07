@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import api from '../config/api';
+import CheckoutPedido from '../components/CheckoutPedido';
+
 
 const Carrito = () => {
   const navigate = useNavigate();
@@ -173,14 +175,50 @@ const Carrito = () => {
                 ))}
               </div>
 
-              {/* CUADRO DE RESUMEN DE PAGO A LA DERECHA */}
+              {/* CUADRO DE RESUMEN DE PAGO A LA DERECHA
               <div className="voke-login-card-box voke-cart-summary-column">
                 <h3 className="voke-form-title-text">Resumo do Pedido</h3>
                 <div className="voke-cart-summary-row"><span>Subtotal:</span><span className="voke-form-label">R\$ {totalGeneral.toFixed(2)}</span></div>
                 <div className="voke-cart-summary-row"><span>Frete:</span><span className="voke-tarjeta-envio">Grátis</span></div>
                 <div className="voke-cart-summary-total-row"><span>Total:</span><span>R\$ {totalGeneral.toFixed(2)}</span></div>
                 <button type="button" onClick={manejarCheckoutFluido} className="voke-submit-btn-black">Finalizar Compra (Pix)</button>
+              </div> */}
+              {/* --- COLUMNA DE RESUMEN Y PASARELA DE PAGOS TOTALMENTE INTEGRADA --- */}
+              <div className="voke-login-card-box voke-cart-summary-column">
+                <h3 className="voke-form-title-text">Resumo do Pedido</h3>
+                
+                <div className="voke-cart-summary-row">
+                  <span>Subtotal:</span>
+                  <span className="voke-form-label">R$ {totalGeneral.toFixed(2)}</span>
+                </div>
+                
+                <div className="voke-cart-summary-row">
+                  <span>Frete:</span>
+                  <span className="voke-tarjeta-envio">Grátis</span>
+                </div>
+                
+                <div className="voke-cart-summary-total-row">
+                  <span>Total:</span>
+                  <span>R$ {totalGeneral.toFixed(2)}</span>
+                </div>
+
+                {/* FORMULARIO AVANZADO DE PAGO CON VERIFICACIÓN SEGURA DE ARREGLOS */}
+                                {/* FORMULARIO AVANZADO DE PAGO, LOGÍSTICA Y CONTROL DE STOCK */}
+                 {/* FORMULARIO AVANZADO DE PAGO, LOGÍSTICA Y CONTROL DE STOCK */}
+                <CheckoutPedido 
+                  totalOriginal={totalGeneral} 
+                  
+                  /* SINCRONIZACIÓN DE VARIABLES REALES: Pasamos tu estado exacto */
+                  itemsCarrito={elementos} 
+                  
+                  alCompletarPedido={() => {
+                    /* LIMPIEZA ATÓMICA DE TU COMPONENTE: Vaciamos el estado real */
+                    setElementos([]);
+                  }} 
+                />
+
               </div>
+
 
             </div>
           )}
