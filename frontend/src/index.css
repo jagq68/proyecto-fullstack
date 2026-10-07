@@ -1513,3 +1513,151 @@
 .voke-btn-finalizar-checkout:hover {
   background-color: var(--voke-dark-blue) !important;
 }
+/**/
+/* ==========================================================================
+   ESTILOS PAINEL CORPORATIVO DASHBOARD ADMIN (BACKOFFICE)
+   ========================================================================== */
+
+.voke-dashboard-wrapper-principal {
+  padding: 40px;
+  background-color: var(--voke-white);
+  font-family: var(--main-font);
+  box-sizing: border-box;
+}
+
+.voke-dashboard-grid-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+  margin-bottom: 30px;
+}
+
+.voke-dashboard-card-indicador {
+  background-color: var(--voke-menu-beige);
+  border: 1px solid var(--voke-light-gray);
+  border-radius: 8px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.voke-dashboard-card-icon {
+  font-size: 36px;
+}
+
+.voke-dashboard-card-info h4 {
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  color: var(--voke-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.voke-card-monto-destacado {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--voke-black);
+}
+
+.voke-dashboard-seccion-bloque {
+  background-color: var(--voke-white);
+  border: 1px solid var(--voke-light-gray);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+/* Indicadores Logísticos de Envío */
+.voke-dashboard-grid-logistica {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.voke-logistica-badge-item {
+  padding: 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.status-pendiente { background-color: #fef3c7; color: #d97706; border-left: 5px solid #d97706; }
+.status-despachado { background-color: #e0f2fe; color: #0284c7; border-left: 5px solid #0284c7; }
+.status-camino { background-color: #e0e7ff; color: #4f46e5; border-left: 5px solid #4f46e5; }
+.status-entregado { background-color: #dcfce7; color: #16a34a; border-left: 5px solid #16a34a; }
+.status-devuelto { background-color: #fce7f3; color: #db2777; border-left: 5px solid #db2777; }
+.status-no-entregado { background-color: #fee2e2; color: #dc2626; border-left: 5px solid #dc2626; }
+
+/* Tablas Analíticas de Stock y Gestión */
+.voke-dashboard-tabla-contenedor {
+  margin-top: 16px;
+  overflow-x: auto;
+}
+
+.voke-dashboard-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.voke-dashboard-tabla th {
+  background-color: var(--voke-almost-white);
+  padding: 12px;
+  font-weight: 700;
+  color: var(--voke-black);
+  border-bottom: 2px solid var(--voke-light-gray);
+}
+
+.voke-dashboard-tabla td {
+  padding: 12px;
+  border-bottom: 1px solid var(--voke-almost-white);
+  color: var(--voke-almost-black);
+}
+
+/* Pillas de Alerta de Almacén */
+.voke-stock-alerta-pill {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pill-critico { background-color: #fee2e2; color: #dc2626; }
+.pill-optimo { background-color: #dcfce7; color: #16a34a; }
+
+/* Alta Categoría Formulario */
+.voke-dashboard-alta-categoria-form {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  margin-bottom: 20px;
+  max-width: 600px;
+}
+
+.btn-alta-dashboard {
+  white-space: nowrap;
+  width: auto !important;
+  padding: 0 24px;
+}
+
+.btn-baja-dashboard {
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  width: auto !important;
+}
+
+/* Botón Bloqueado de Seguridad */
+.btn-desactivado {
+  background-color: var(--voke-light-gray) !important;
+  color: var(--voke-gray) !important;
+  border-color: var(--voke-light-gray) !important;
+  cursor: not-allowed !important;
+}

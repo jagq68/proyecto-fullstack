@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login';
 import Catalogo from './pages/Catalogo';
 import Carrito from './pages/Carrito';
+import DashboardAdmin from './pages/DashboardAdmin';
+
 
 function App() {
   return (
@@ -13,6 +15,7 @@ function App() {
           <Route path="/" element={<Catalogo />} />
           <Route path="/login" element={<Login />} />
           <Route path="/carrinho" element={<Carrito />} />
+          <Route path="/admin/dashboard" element={<DashboardAdmin />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
