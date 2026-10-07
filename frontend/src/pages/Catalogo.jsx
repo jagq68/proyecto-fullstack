@@ -12,35 +12,62 @@ const Catalogo = () => {
   const [actualizarContador, setActualizarContador] = useState(0);
   const [favoritos, setFavoritos] = useState({});
 
-  // SOLUCIÓN AL BLOQUEO: Escucha la barra de direcciones en tiempo real
+  // SOLUCIÓN AL BLOQUEO DE NAVEGACIÓN: Escucha categorías, marcas y búsquedas en tiempo real
+  // SOLUCIÓN AL BLOQUEO DE NAVEGACIÓN: Mapeo inteligente para base de datos relacional
   useEffect(() => {
     const cargarYFiltrarProductos = async () => {
       setCargando(true);
       try {
-        // 1. Consumimos los datos reales desde PostgreSQL mediante Axios
+        // 1. Consumimos el inventario real desde PostgreSQL
         const respuesta = await api.get('/produtos');
-        const listaCompleta = respuesta.data || [];
+        let listaFiltrada = respuesta.data || [];
 
-        // 2. Extraemos el parámetro ?buscar de la URL usando la herramienta nativa
+        // 2. Extraemos los parámetros de búsqueda de la URL
         const queryParams = new URLSearchParams(location.search);
-        const termino = queryParams.get('buscar')?.toLowerCase().trim() || '';
+        const terminoBuscar = queryParams.get('buscar')?.toLowerCase().trim() || '';
+        const terminoCategoria = queryParams.get('categoria')?.toLowerCase().trim() || '';
+        const terminoMarca = queryParams.get('marca')?.toLowerCase().trim() || '';
 
-        // 3. REGLA DE BÚSQUEDA UNIVERSAL: Filtra por nombre, marca o descripción
-        if (termino) {
-          const filtrados = listaCompleta.filter(prod => {
+        // 3. FILTRADO INTELIGENTE POR CATEGORIA_ID (Mapeo relacional de Voke)
+        if (terminoCategoria) {
+          listaFiltrada = listaFiltrada.filter(prod => {
+            const idCat = parseInt(prod.categoria_id);
+            
+            // Asignación de ID según el ítem seleccionado en el DrawerMenu
+            if (terminoCategoria === 'cuadernos') return idCat === 1;
+            if (terminoCategoria === 'computadoras') return idCat === 2;
+            if (terminoCategoria === 'smartphones') return idCat === 3;
+            if (terminoCategoria === 'tabletas') return idCat === 4;
+            if (terminoCategoria === 'monitores') return idCat === 5;
+            if (terminoCategoria === 'accesorios') return idCat === 6;
+            if (terminoCategoria === 'apple') return idCat === 7;
+            if (terminoCategoria === 'chromebook') return idCat === 8;
+            
+            return true;
+          });
+        }
+
+        // 4. FILTRADO INTELIGENTE POR MARCA (Busca la palabra adentro del campo nombre)
+        if (terminoMarca) {
+          listaFiltrada = listaFiltrada.filter(prod => {
+            const nombreProd = (prod.nombre || '').toLowerCase();
+            const marcaABuscar = terminoMarca === 'manzana' ? 'apple' : terminoMarca; // Traduce Manzana a Apple si es necesario
+            return nombreProd.includes(marcaABuscar);
+          });
+        }
+
+        // 5. FILTRADO POR BARRA DE BÚSQUEDA TRADICIONAL
+        if (terminoBuscar) {
+          listaFiltrada = listaFiltrada.filter(prod => {
             const nombre = (prod.nombre || '').toLowerCase();
             const descripcion = (prod.descripcion || '').toLowerCase();
-            const marca = (prod.marca || '').toLowerCase();
-            
-            return nombre.includes(termino) || 
-                   descripcion.includes(termino) || 
-                   marca.includes(termino);
+            return nombre.includes(terminoBuscar) || descripcion.includes(terminoBuscar);
           });
-          setProductos(filtrados);
-        } else {
-          // Si no hay búsqueda, muestra todo el inventario de la tienda
-          setProductos(listaCompleta);
         }
+
+        // Cargamos la lista final limpia en la vitrina de React
+        setProductos(listaFiltrada);
+
       } catch (error) {
         console.error("Erro ao consumir a API de produtos de Voke:", error);
       }
@@ -48,7 +75,70 @@ const Catalogo = () => {
     };
 
     cargarYFiltrarProductos();
-  }, [location.search]); // REGLA DE ORO: Cada vez que la URL cambie, React refrescará la vitrina
+  }, [location.search]);
+
+  //   useEffect(() => {
+//     const cargarYFiltrarProductos = async () => {
+//       setCargando(true);
+//       try {
+//         // 1. Consumimos los datos reales desde PostgreSQL mediante Axios
+//         const respuesta = await api.get('/produtos');
+//         let listaFiltrada = respuesta.data || [];
+//           // IMPRESIÓN DIAGNÓSTICA PARA VER LAS COLUMNAS DE POSTGRESQL
+//         console.log("== 📦 ESTRUCTURA REAL DE UN PRODUCTO EN LA BD == ");
+//         if (listaFiltrada.length > 0) {
+//           console.log(listaFiltrada[0]); // Imprime el primer producto del inventario
+//         } else {
+//           console.log("La base de datos de productos está vacía o el array llegó vacío.");
+//         }
+//         console.log("=================================================");
+
+//         // 2. Extraemos los parámetros de la URL usando la herramienta nativa
+//         const queryParams = new URLSearchParams(location.search);
+//         const terminoBuscar = queryParams.get('buscar')?.toLowerCase().trim() || '';
+//         const terminoCategoria = queryParams.get('categoria')?.toLowerCase().trim() || '';
+//         const terminoMarca = queryParams.get('marca')?.toLowerCase().trim() || '';
+
+//         // 3. REGLA DE FILTRADO POR DEPARTAMENTO / CATEGORÍA (Desde el DrawerMenu)
+//         if (terminoCategoria) {
+//           listaFiltrada = listaFiltrada.filter(prod => {
+//             const categoriaProd = (prod.categoria || '').toLowerCase();
+//             return categoriaProd === terminoCategoria;
+//           });
+//         }
+
+//         // 4. REGLA DE FILTRADO POR MARCA ESPECÍFICA (Desde el submenú del DrawerMenu)
+//         if (terminoMarca) {
+//           listaFiltrada = listaFiltrada.filter(prod => {
+//             const marcaProd = (prod.marca || '').toLowerCase();
+//             return marcaProd === terminoMarca;
+//           });
+//         }
+
+//         // 5. REGLA DE BÚSQUEDA TRADICIONAL (Desde la barra de texto superior)
+//         if (terminoBuscar) {
+//           listaFiltrada = listaFiltrada.filter(prod => {
+//             const nombre = (prod.nombre || '').toLowerCase();
+//             const descripcion = (prod.descripcion || '').toLowerCase();
+//             const marca = (prod.marca || '').toLowerCase();
+            
+//             return nombre.includes(terminoBuscar) || 
+//                    descripcion.includes(terminoBuscar) || 
+//                    marca.includes(terminoBuscar);
+//           });
+//         }
+
+//         // Asentamos la lista final procesada en la vitrina de React
+//         setProductos(listaFiltrada);
+
+//       } catch (error) {
+//         console.error("Erro ao consumir a API de produtos de Voke:", error);
+//       }
+//       setCargando(false);
+//     };
+
+//     cargarYFiltrarProductos();
+//   }, [location.search]);
 
   const manejarAgregarAlCarrito = async (idDelProducto, nombreProducto) => {
     try {
@@ -67,7 +157,8 @@ const Catalogo = () => {
       console.error("Erro ao adicionar produto:", error);
     }
   };
-return (
+
+  return (
     <div className="voke-layout-wrapper">
       <div>
         <Navbar key={actualizarContador} />
@@ -81,10 +172,20 @@ return (
         {/* CONTENEDOR CENTRAL MAESTRO LIMPIO DE ESTILOS INLINE */}
         <div className="voke-catalogo-container">
           
-          {/* ENCABEZADO DE OFERTAS LIMPIO */}
+          {/* ENCABEZADO DE OFERTAS DINÁMICO */}
           <div className="voke-catalogo-header-row">
             <span className="voke-catalogo-rayo">⚡</span>
-            <h2 className="voke-catalogo-titulo-principal">As melhores ofertas</h2>
+            <h2 className="voke-catalogo-titulo-principal">
+              {(() => {
+                const queryParams = new URLSearchParams(location.search);
+                const cat = queryParams.get('categoria');
+                const marc = queryParams.get('marca');
+                if (cat && marc) return `Ofertas em ${cat} - ${marc}`;
+                if (cat) return `Ofertas em ${cat}`;
+                if (marc) return `Ofertas de ${marc}`;
+                return "As melhores ofertas";
+              })()}
+            </h2>
           </div>
 
           {cargando ? (
@@ -100,9 +201,18 @@ return (
                 </div>
               ) : (
                 productos.map((prod) => {
-                  const precioBase = parseFloat(prod.precio);
+                  const precioBase = parseFloat(prod.precio || 0);
                   const precioPix = precioBase * 0.95;
                   const valorCuota = precioBase / 10;
+
+                  let urlImagen = 'https://placeholder.com';
+                  if (prod.imagenes) {
+                    if (Array.isArray(prod.imagenes) && prod.imagenes.length > 0) {
+                      urlImagen = prod.imagenes[0];
+                    } else if (typeof prod.imagenes === 'string' && prod.imagenes.trim() !== '') {
+                      urlImagen = prod.imagenes;
+                    }
+                  }
 
                   return (
                     <div key={prod.id} className="voke-tarjeta-producto">
@@ -135,7 +245,7 @@ return (
                       {/* CAJA DE IMAGEN */}
                       <div className="voke-tarjeta-imagen-box">
                         <img 
-                          src={prod.imagenes && prod.imagenes.length > 0 ? (Array.isArray(prod.imagenes) ? prod.imagenes[0] : prod.imagenes) : 'https://placeholder.com'} 
+                          src={urlImagen} 
                           alt={prod.nombre} 
                           className="voke-tarjeta-img" 
                         />
@@ -152,7 +262,7 @@ return (
                             <span className="voke-form-subtitle-text"> vía PIX</span>
                           </div>
                           <div className="voke-tarjeta-precio-cuotas">
-                            Ou 10x de <span style={{ fontWeight: 'bold' }}>R\$ {valorCuota.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            Ou 10x de <span className="voke-tarjeta-cuota-destacada">R\$ {valorCuota.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                           </div>
                           <div className="voke-tarjeta-envio">🚚 Frete grátis</div>
                         </div>

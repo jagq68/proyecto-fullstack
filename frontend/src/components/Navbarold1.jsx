@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../config/api';
-import DrawerMenu from './DrawerMenu'; // <-- IMPORTACIÓN DEL MENÚ LATERAL
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [cantidadTotal, setCantidadTotal] = useState(0);
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
-  
-  // ESTADO MAESTRO PARA CONTROLAR LA APERTURA DEL MENÚ LATERAL
-  const [menuOpen, setMenuOpen] = useState(false);
   
   const mensajesVoke = [
     "Frete grátis para todo o Brasil em compras corporativas",
@@ -111,24 +107,19 @@ const Navbar = () => {
 
       {/* 3. FRANJA INFERIOR FUCSIA CON ENLACES FILTRADORES CONECTADOS */}
       <div className="voke-menu-subbar">
-        {/* CORRECCIÓN: Ahora al hacer clic cambia el estado a true y abre el Drawer */}
-        <div className="voke-menu-hamburguesa" onClick={() => setMenuOpen(true)}>☰</div>
-        
+        <div className="voke-menu-hamburguesa">☰</div>
         <div className="voke-menu-links">
-          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('ofertas')}>Ofertas de primavera</span>
+          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('ofertas')} style={{ cursor: 'pointer' }}>Ofertas de primavera</span>
           <span>|</span>
-          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Apple')}>tienda Apple</span>
+          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Apple')} style={{ cursor: 'pointer' }}>tienda Apple</span>
           <span>|</span>
-          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Samsung')}>Tienda Samsung</span>
+          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Samsung')} style={{ cursor: 'pointer' }}>Tienda Samsung</span>
           <span>|</span>
-          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Lenovo')}>Tienda Lenovo</span>
+          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Lenovo')} style={{ cursor: 'pointer' }}>Tienda Lenovo</span>
           <span>|</span>
-          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Dell')}>Tienda Dell</span>
+          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Dell')} style={{ cursor: 'pointer' }}>Tienda Dell</span>
         </div>
       </div>
-
-      {/* 4. ACOPLE DEL COMPONENTE MENÚ LATERAL */}
-      <DrawerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
 
     </div>
   );
