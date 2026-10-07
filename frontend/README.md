@@ -1,65 +1,46 @@
-# 🚀 Simulação Loja Voke Brasil - Fullstack E-Commerce
-**Desenvolvido por:** Alberto Guatume  
-**Turma:** 58 Toti - Diversidade  
-**Tecnologias:** React (Frontend), Node.js + Express (Backend), PostgreSQL (Banco de Dados), CSS Puro Tradicional (Sem utilitários).
+# Reporte de Avance del Proyecto - Simulación E-commerce Voke Brasil
+
+Este documento detalla las implementaciones lógicas, correcciones estructurales y optimizaciones arquitectónicas realizadas durante la jornada de desarrollo de hoy. Se completó con éxito el ciclo de persistencia de datos (CRUD), la separación rigurosa de responsabilidades (Frontend vs Estilos CSS) y la navegación dinámica integrada de forma relacional con la base de datos PostgreSQL.
+
+## 🛠️ Tecnologías y Arquitectura Utilizadas
+- **Frontend:** React.js, React Router DOM (Manejo de estados asíncronos y hooks de ciclo de vida).
+- **Backend:** Node.js, Express.js (Arquitectura RESTful, middlewares de parsing y enrutamiento jerárquico).
+- **Base de Datos:** PostgreSQL (Transacciones atómicas, restricciones UNIQUE y relacionales).
+- **Estilos:** CSS3 Puro mediante variables globales (`:root`), cumpliendo con la restricción estricta de **cero estilos en línea (`style={{...}}`)**.
 
 ---
 
-## 📋 Resumo das Implementações e Correções (Passo a Passo)
+## 🚀 Implementaciones y Logros Técnicos
 
-Nesta jornada de desenvolvimento e auditoria técnica, reestruturamos o ecossistema do projeto para cumprir rigorosamente os padrões acadêmicos e corporativos exigidos pelos professores e pela equipe da Voke:
+### 1. Cierre Exitoso del Ciclo CRUD (Autenticación y Perfil de Usuario)
+- **CREATE (POST /register):** Se ajustó el mapa de variables en el frontend para enviar campos planos que correspondan exactamente con el `req.body` esperado por el backend (`email`, `contrasena`, `cpf_cnpj`, `nome_completo`).
+- **READ (POST /login):** Implementación de la persistencia segura mediante `localStorage`. Al iniciar sesión, el sistema valida las credenciales a través de `bcryptjs` en el backend, genera un token JWT y actualiza el estado global de la aplicación.
+- **UPDATE (PUT /usuario y /usuario/password):** Se resolvió un error de flujo crítico desacoplando la interfaz en dos secciones independientes. Ahora, el usuario puede actualizar sus datos básicos inmediatamente tras el registro sin que el sistema le exija de forma errónea una "contraseña anterior". El cambio de clave se aisló en un formulario de seguridad independiente.
+- **DELETE (DELETE /usuario/:id):** Se integró el borrado físico de la cuenta. La base de datos ejecuta una transacción segura con `BEGIN`, `COMMIT` y `ROLLBACK` removiendo en cascada (`CASCADE`) primero el perfil del cliente para cumplir con la integridad referencial y luego las credenciales de la tabla principal de usuarios.
 
-### 1. 🎨 Frontend: Migração Total para CSS Puro Tradicional
-* **Erradicação do Tailwind e Estilos Inline:** Removemos completamente todas as classes utilitárias e os atributos `style={{...}}` de dentro dos arquivos `.jsx` para seguir as boas práticas de desenvolvimento ensinadas em aula.
-* **Centralização no `src/index.css`:** Todo o design visual foi isolado no arquivo de estilos geral.
-* **Interface Fluida e Responsiva:** Alinhamos a vitrina de produtos para se organizar horizontalmente em formato de cartões (tarjetas) simétricos e independentes.
+### 2. Saneamiento y Desbloqueo del Motor PostgreSQL
+- Se diagnosticó y solucionó un error persistente `400 Bad Request` causado por registros "huérfanos" (duplicados de cadenas vacías `""` en restricciones `UNIQUE`) generados en pruebas manuales previas con comandos `DELETE` incompletos.
+- Se aplicó un saneamiento profundo a las tablas mediante la instrucción:
+  ```sql
+  TRUNCATE TABLE clientes_perfil, usuarios RESTART IDENTITY CASCADE;
+  ```
+  Esto dejó la base de datos en un estado óptimo y virgen, reiniciando los contadores de llaves primarias (`SERIAL`).
 
-### 🏛️ 2. Componentes e Telas Refatoradas
-* **Navbar Dinâmico (`Navbar.jsx`):** 
-  * O logotipo da **Voke** foi corrigido para não exibir pontos.
-  * O carrossel superior preto agora é **100% dinâmico**, alternando mensagens institucionais automaticamente ou por cliques nas setas `<` e `>`, ajustando-se perfeitamente ao tamanho do texto.
-  * A barra de buscas foi modificada para o formato de pílula (arredondada) e integrada a um formulário funcional conectado à API.
-  * Links do menu fucsia (Apple, Samsung, Lenovo, Dell) configurados para filtrar a vitrina imediatamente por clique.
-* **Vitrina Inteligente (`Catalogo.jsx`):** Implementamos um filtro universal no hook `useEffect` que escuta a URL em tempo real. Agora, ao buscar por termos como "laptop" ou clicar em uma marca, a tela se atualiza instantaneamente com os dados do PostgreSQL.
-* **Notificação Premium (Toast):** Substituímos os alertas toscos do navegador por um balão flutuante elegante na cor preta e fucsia que surge no topo direito e desaparece de forma ágil após **2.5 segundos**.
-* **Carrinho de Compras Transacional (`Carrito.jsx`):** Remoção de estilos inline, adição de seletores numéricos reativos e alertas de confirmação amigáveis.
+### 3. Modularización de la Interfaz: `DrawerMenu.jsx`
+- Diseñado y desarrollado un menú lateral interactivo que despliega los Departamentos oficiales exigidos por el estándar corporativo de Voke: *Cuadernos, Computadoras, Smartphones, Tabletas, Monitores, Accesorios, Menú Manzana y Chromebook*.
+- Cuenta con lógica dinámica para cambiar su estado visual si hay un usuario logueado, mostrando el nombre real del cliente en el apartado "Mi cuenta" o la leyenda genérica en su defecto.
 
-### ⚙️ 3. Backend: Ajuste Transacional de Quantidades e Estoque
-* **Correção no Controlador (`carritoController.js`):** Removemos a validação rígida `cantidad <= 0` que bloqueava o botão de menos (`-`).
-* **Sintaxe Segura de PostgreSQL:** Corrigimos o acesso ao array de linhas substituindo formatos truncados pelo método seguro `.rows.at(0).id` para evitar erros de leitura de dados (`undefined`).
-* **Regra de Negócio Absoluta:** Ajustamos a rota `POST /api/carrinhos` para que, se a quantidade de um item chegar a zero (`0`) ao ser decrementada, a linha seja eliminada fisicamente (`DELETE`) do banco relacional, disparando o retorno automático das unidades para a tabela de estoque (`produtos`).
+### 4. Filtrado Inteligente Relacional en la Vitrina (`Catalogo.jsx`)
+- Se expandió la **Regla de Búsqueda Universal** del catálogo. Debido a que la base de datos de productos opera de forma numérica y relacional (`categoria_id`), el `useEffect` del frontend fue programado para interceptar los parámetros de la URL (`?categoria=...` y `?marca=...`).
+- Implementación de un mapeo por IDs lógicos y una inspección de cadenas sobre la columna `nombre` del producto para identificar la marca, permitiendo que el catálogo se actualice instantáneamente sin necesidad de alterar la estructura física de las tablas en PostgreSQL.
+
+### 5. Rediseño del Componente `Footer.jsx`
+- Se actualizó el pie de página institucional completo agregando el módulo de suscripción al boletín de noticias mediante formularios reactivos controlados, la información legal de la compañía (CNPJ y marcas registradas de Agasus/Voke) y las secciones de navegación de ayuda.
 
 ---
 
-## 🐙 Guia de Comandos Git - Máquina do Tempo do Código
-
-Para gerenciar, respaldar ou reverter alterações no repositório de forma segura através do **Git Bash**, utilize os seguintes comandos:
-
-### 📤 Respaldo Massivo e Envio para o GitHub
-```bash
-# 1. Adicionar todas as modificações do frontend e backend
-git add .
-
-# 2. Criar o ponto de salvamento com uma mensagem descritiva
-git commit -m "Respaldo unificado: Migrado catálogo e componentes para CSS Puro, corrigido decremento de carrinho e busca funcional"
-
-# 3. Subir os arquivos para o repositório remoto
-git push origin main
-```
-
-### 🕒 Recuperar Versões Anteriores de um Arquivo
-Se uma modificação quebrar o código e você precisar que **apenas um arquivo** específico retorne ao passado sem afetar o resto do projeto:
-
-```bash
-# 1. Listar o histórico de commits recentes e copiar os 7 caracteres amarelos (ID) do commit desejado
-git log --oneline
-
-# 2. Forçar o arquivo a voltar exatamente ao estado desse commit específico
-git checkout <ID_DO_COMMIT> -- src/pages/Catalogo.jsx
-```
-
-### ↩️ Desfazer o Último Commit (Borrão e Conta Nova)
-Se você fez um commit por engano e quer voltar atrás mantendo os arquivos salvos no VS Code para continuar editando:
-```bash
-git reset --soft HEAD~1
-```
+## 🎨 Adherencia Estricta a los Estándares de Código
+A petición del cuerpo docente, el proyecto ha sido depurado en su totalidad:
+1. **Cero Estilos Inline:** Se removieron todos los atributos `style={{...}}` del código JSX.
+2. **Centralización en `index.css`:** Se crearon clases personalizadas semánticas y legibles (ej. `.voke-tarjeta-cuota-destacada`, `.voke-perfil-container`) vinculadas de forma exclusiva a las variables nativas del diseño corporativo.
+3. **Optimización de Eventos:** Se corrigieron los atributos `type="submit"` involuntarios en botones secundarios, cambiándolos por `type="button"` para evitar congelamientos de hilos en el navegador y recargas forzadas de la página.
