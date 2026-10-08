@@ -13,8 +13,12 @@ const pedidoRoutes = require('./routes/pedidoRoutes');
 const pagoRoutes = require('./routes/pagoRoutes'); 
 const dashboardRoutes = require('./routes/dashboardRoutes'); 
 const chatbotRoutes = require('./routes/chatbotRoutes'); 
+const logisticaRoutes = require('./routes/logisticaRoutes');
 
 const app = express();
+
+
+
 
 // ==========================================
 // 1. CONFIGURACIÓN DE MIDDLEWARES GLOBALES
@@ -43,6 +47,7 @@ app.use('/api/pedidos', pedidoRoutes);
 app.use('/api/pagos', pagoRoutes); 
 app.use('/api/dashboard', dashboardRoutes); 
 app.use('/api/chatbot', chatbotRoutes); 
+app.use('/api/logistica', logisticaRoutes);
 
 // Ruta de prueba segura
 app.get('/api/prueba', async (req, res) => {

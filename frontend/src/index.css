@@ -1730,3 +1730,134 @@
 .btn-degrade:hover {
   background-color: #fecaca;
 }
+/**/
+.voke-select-logistica-dashboard {
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: var(--voke-white);
+  border: 1px solid var(--voke-light-gray);
+}
+/**/
+/* ==========================================================================
+   ESTILOS DE LA LÍNEA DE TIEMPO INTERACTIVA (TIMELINE DE RASTREO)
+   ========================================================================== */
+
+.voke-seguimiento-wrapper {
+  padding: 40px;
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: var(--main-font);
+  box-sizing: border-box;
+}
+
+.voke-rastreo-input-box {
+  margin-top: 24px;
+  margin-bottom: 32px;
+}
+
+.voke-seguimiento-resumen-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--voke-light-gray);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.voke-seguimiento-resumen-cabecera h3 {
+  margin: 0;
+  font-size: 22px;
+  color: var(--voke-black);
+}
+
+.voke-timeline-heading {
+  margin-top: 32px;
+  margin-bottom: 24px;
+}
+
+/* Contenedor principal del flujo vertical */
+.voke-timeline-contenedor {
+  position: relative;
+  padding-left: 32px;
+  margin-top: 16px;
+}
+
+/* Barra vertical gris de fondo que conecta los nodos */
+.voke-timeline-contenedor::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  background-color: var(--voke-light-gray);
+}
+
+.voke-timeline-item {
+  position: relative;
+  margin-bottom: 28px;
+}
+
+.voke-timeline-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Nodo circular flotante con el emoji del estado */
+.voke-timeline-badge-icon {
+  position: absolute;
+  left: -32px;
+  top: 2px;
+  width: 24px;
+  height: 24px;
+  background-color: var(--voke-white);
+  border: 2px solid var(--voke-gray);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  z-index: 2;
+}
+
+.voke-timeline-contenido {
+  background-color: var(--voke-almost-white);
+  border-radius: 6px;
+  padding: 16px;
+  border: 1px solid var(--voke-light-gray);
+}
+
+.voke-timeline-contenido h5 {
+  margin: 0 0 6px 0;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.voke-timeline-detalles-texto {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: var(--voke-almost-black);
+  line-height: 1.4;
+}
+
+.voke-timeline-fecha {
+  font-size: 11px;
+  color: var(--voke-gray);
+  font-weight: 600;
+}
+/**/
+.voke-seguimiento-footer-btn-box {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+  border-top: 1px solid var(--voke-light-gray);
+  padding-top: 20px;
+}
+
+.voke-btn-volver-catalogo {
+  width: auto !important;
+  padding: 0 32px;
+}

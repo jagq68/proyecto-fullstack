@@ -4,6 +4,8 @@ import Login from './pages/Login';
 import Catalogo from './pages/Catalogo';
 import Carrito from './pages/Carrito';
 import DashboardAdmin from './pages/DashboardAdmin';
+import SeguimientoEnvio from './pages/SeguimientoEnvio';
+
 
 // 🛡️ COMPONENTE GUARDIÁN DE SEGURIDAD (MIDDLEWARE DE FRONTEND)
 const ProtegerRutaAdmin = ({ children }) => {
@@ -29,7 +31,8 @@ function App() {
           <Route path="/" element={<Catalogo />} />
           <Route path="/login" element={<Login />} />
           <Route path="/carrinho" element={<Carrito />} />
-          
+          <Route path="/seguimiento" element={<SeguimientoEnvio />} />
+          <Route path="/seguimiento/:id" element={<SeguimientoEnvio />} />
           {/* 🔒 RUTA ADMINISTRATIVA TOTALMENTE PROTEGIDA Y ENCAPSULADA */}
           <Route 
             path="/admin/dashboard" 

@@ -7,6 +7,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [cantidadTotal, setCantidadTotal] = useState(0);
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
+  const [ultimoPedidoId, setUltimoPedidoId] = useState(null);
   
   // ESTADO MAESTRO PARA CONTROLAR LA APERTURA DEL MENÚ LATERAL
   const [menuOpen, setMenuOpen] = useState(false);
@@ -17,6 +18,56 @@ const Navbar = () => {
     "Notebooks e Laptops reacondicionados com garantia de fábrica Voke",
     "Ofertas especiais de Primavera - Confira nossa vitrine local"
   ];
+
+// Función inteligente para buscar el último pedido activo del usuario logueado
+  const buscarUltimoPedidoUsuario = async () => {
+    const token = localStorage.getItem('voke_token');
+    if (!token) return;
+
+    try {
+      const configuracion = { headers: { 'Authorization': `Bearer ${token}` } };
+      
+      // Consultamos al backend la nómina de pedidos para extraer el último de este cliente
+      const res = await api.get('/logistica/pedidos-todos', configuracion);
+      
+      // Obtenemos los datos del usuario actual desde el LocalStorage
+      const usuarioGuardado = localStorage.getItem('voke_usuario');
+      const user = usuarioGuardado ? JSON.parse(usuarioGuardado) : null;
+
+      if (res.data && user) {
+        // Filtramos de forma relacional para encontrar solo los pedidos que le pertenecen a este cliente
+        const pedidosFiltrados = res.data.filter(p => p.nome_completo === user.usuario?.nome_completo || p.email === user.email);
+        
+        if (pedidosFiltrados.length > 0) {
+          // Guardamos el ID del pedido más reciente (el primero de la lista por orden descendente)
+          setUltimoPedidoId(pedidosFiltrados[0].id);
+        }
+      }
+    } catch (err) {
+      console.error("Error al buscar pedido automático en Navbar:", err);
+    }
+  };
+
+  useEffect(() => {
+    buscarUltimoPedidoUsuario();
+
+    // Tu lógica nativa de escuchar cambios en el carrito se mantiene idéntica...
+    const actualizarContador = () => {
+      // (Aquí va tu código actual que lee los badges del carrito)
+    };
+    window.addEventListener('carrito_actualizado', actualizarContador);
+    return () => window.removeEventListener('carrito_actualizado', actualizarContador);
+  }, []);
+
+  // Función manejadora para el botón de un solo clic
+  const irAlRastreoAutomatico = () => {
+    if (ultimoPedidoId) {
+      navigate(`/seguimiento/${ultimoPedidoId}`); // Lo lleva directo a su Timeline con el ID
+    } else {
+      navigate('/seguimiento'); // Si no tiene pedidos, lo lleva a la barra de búsqueda tradicional
+    }
+  };
+
   const [indiceMensaje, setIndiceMensaje] = useState(0);
 
   useEffect(() => {
@@ -98,9 +149,10 @@ const Navbar = () => {
           />
           <span className="voke-search-lupa" onClick={manejarBusquedaSubmit}>🔍</span>
         </form>
-//
         <div className="voke-nav-controls">
+
           <span className="voke-nav-link" title="Favoritos">🖤</span>
+
           
           {/* CONTROL DE SESIÓN DINÁMICO EN LA NAVBAR */}
           {localStorage.getItem('voke_token') ? (
@@ -119,6 +171,18 @@ const Navbar = () => {
           ) : (
             <Link to="/login" className="voke-nav-link" title="Minha Conta">👤</Link>
           )}
+        {/* INTERFAZ ACCESIBLE AUTOMÁTICA: 
+            Aparece solo si hay sesión activa para guiar al usuario sin requerir URLs manuales */}
+        {localStorage.getItem('voke_token') && (
+          <button 
+            type="button" 
+            onClick={irAlRastreoAutomatico}
+            className="voke-nav-link-texto"
+            title="Acompanhar o status da minha entrega em tempo real"
+          >
+            🚚Envio
+          </button>
+        )}
 
           <Link to="/carrinho" className="voke-nav-link" title="Carrinho">
             <span>🛒</span>
