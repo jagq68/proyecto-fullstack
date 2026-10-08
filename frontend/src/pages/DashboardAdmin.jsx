@@ -277,7 +277,34 @@ const DashboardAdmin = () => {
                   </td>
                   <td>{new Date(user.fecha_registro).toLocaleDateString('pt-BR')}</td>
                   <td>
-                    <button
+                     <button
+                      type="button"
+                      onClick={() => manejarCambioDeRol(user.id, user.perfil)}
+                      className={`voke-btn-rol-toggle ${user.perfil === 'admin' ? 'btn-degrade' : 'btn-ascend'}`}
+                      
+                      /* 🛡️ REGLA DE NEGOCIO REAL: 
+                         El botón se bloquea ÚNICAMENTE si el ID del usuario de la fila 
+                         es igual al ID del administrador que está logueado en este momento. */
+                      disabled={
+                        parseInt(user.id) === JSON.parse(localStorage.getItem('voke_usuario') || '{}').id
+                      }
+                      title={
+                        parseInt(user.id) === JSON.parse(localStorage.getItem('voke_usuario') || '{}').id 
+                          ? "Tu cuenta actual (Protegida contra auto-degradación)" 
+                          : "Cambiar permisos de usuario"
+                      }
+                    >
+                      {/* LÓGICA VISUAL EN PANTALLA */}
+                      {parseInt(user.id) === JSON.parse(localStorage.getItem('voke_usuario') || '{}').id ? (
+                        '🔒 Protegido'
+                      ) : user.perfil === 'admin' ? (
+                        '⬇️ Degradar'
+                      ) : (
+                        '⬆️ Ascender'
+                      )}
+                    </button>
+
+                    {/* <button
                       type="button"
                       onClick={() => manejarCambioDeRol(user.id, user.perfil)}
                       className={`voke-btn-rol-toggle ${user.perfil === 'admin' ? 'btn-degrade' : 'btn-ascend'}`}
@@ -285,7 +312,7 @@ const DashboardAdmin = () => {
                       title={parseInt(user.id) === 999 ? "Cuenta maestra protegida" : "Cambiar permisos"}
                     >
                       {parseInt(user.id) === 999 || user.email === 'director@voke.com' ? '🔒 Protegido' : (user.perfil === 'admin' ? '⬇️ Degradar' : '⬆️ Ascender')}
-                    </button>
+                    </button> */}
                   </td>
                 </tr>
               ))}
