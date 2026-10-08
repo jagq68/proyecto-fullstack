@@ -5,7 +5,7 @@ const pool = new Pool({
     password: process.env.DB_PASSWORD || 'root',
     host: process.env.DB_HOST || 'localhost',
     port: process.env.DB_PORT || 5432,
-    database: process.env.DB_NAME || 'ecommerce'
+    database: process.env.DB_NAME || 'ecommerce',
     // 🚀 CONTROL EXPLICITO DE SSL PARA LA NUBE:
     // Si la base de datos es local ('localhost'), apaga el SSL para poder programar normal.
     // Si se ejecuta en internet (Render), inyecta la encriptación requerida por el servidor.
