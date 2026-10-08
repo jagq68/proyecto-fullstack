@@ -1661,3 +1661,72 @@
   border-color: var(--voke-light-gray) !important;
   cursor: not-allowed !important;
 }
+/**/
+.voke-navbar-btn-sair {
+  background: none;
+  border: 1px solid var(--voke-gray);
+  border-radius: 4px;
+  color: var(--voke-black);
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--main-font);
+  transition: all 0.2s ease;
+}
+
+.voke-navbar-btn-sair:hover {
+  background-color: var(--voke-btn-eliminar-bg, #fee2e2);
+  color: #dc2626;
+  border-color: #dc2626;
+}
+/**/
+/* Píldoras de Roles */
+.voke-rol-pill {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.role-admin {
+  background-color: #e0e7ff;
+  color: #4f46e5;
+}
+
+.role-cliente {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+/* Botones de acción de roles */
+.voke-btn-rol-toggle {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--main-font);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.btn-ascend {
+  background-color: #dcfce7;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+
+.btn-ascend:hover {
+  background-color: #bbf7d0;
+}
+
+.btn-degrade {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.btn-degrade:hover {
+  background-color: #fecaca;
+}

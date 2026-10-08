@@ -98,15 +98,42 @@ const Navbar = () => {
           />
           <span className="voke-search-lupa" onClick={manejarBusquedaSubmit}>🔍</span>
         </form>
-
+//
         <div className="voke-nav-controls">
+          <span className="voke-nav-link" title="Favoritos">🖤</span>
+          
+          {/* CONTROL DE SESIÓN DINÁMICO EN LA NAVBAR */}
+          {localStorage.getItem('voke_token') ? (
+            <button 
+              type="button" 
+              onClick={() => {
+                localStorage.clear(); // Limpia token y perfil de la memoria del navegador
+                window.dispatchEvent(new Event('carrito_actualizado')); // Sincroniza componentes
+                navigate('/'); // Redirige al login de inmediato
+              }} 
+              className="voke-navbar-btn-sair"
+              title="Cerrar Sesión"
+            >
+              🚪 Sair
+            </button>
+          ) : (
+            <Link to="/login" className="voke-nav-link" title="Minha Conta">👤</Link>
+          )}
+
+          <Link to="/carrinho" className="voke-nav-link" title="Carrinho">
+            <span>🛒</span>
+            <span className="voke-cart-badge">{cantidadTotal}</span>
+          </Link>
+        </div>
+
+        {/* <div className="voke-nav-controls">
           <span className="voke-nav-link" title="Favoritos">🖤</span>
           <Link to="/login" className="voke-nav-link" title="Minha Conta">👤</Link>
           <Link to="/carrinho" className="voke-nav-link" title="Carrinho">
             <span>🛒</span>
             <span className="voke-cart-badge">{cantidadTotal}</span>
           </Link>
-        </div>
+        </div> */}
       </div>
 
       {/* 3. FRANJA INFERIOR FUCSIA CON ENLACES FILTRADORES CONECTADOS */}
