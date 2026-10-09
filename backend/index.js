@@ -23,7 +23,17 @@ const app = express();
 // ==========================================
 // 1. CONFIGURACIÓN DE MIDDLEWARES GLOBALES
 // ==========================================
-app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
+// 🚀 CONFIGURACIÓN DE SEGURIDAD INTEGRAL PARA LA NUBE Y LOCAL
+const opcionesCors = {
+  origin: [
+    'http://localhost:5173',                  // Tu frontend local en la laptop
+    'https://github.io'                // Tu frontend oficial publicado en internet
+  ],
+  credentials: true,                          // ¡OBLIGATORIO! Permite que el registro y login envíen datos de usuario a la nube
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+//app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

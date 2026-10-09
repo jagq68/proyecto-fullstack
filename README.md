@@ -1,35 +1,32 @@
-# Reporte de Avance - Panel Analítico de Administración y Control ABM de Categorías (Fase 5)
+# Reporte de Avance - Pasarela Logística de Despacho y Línea de Tiempo de Envíos en Tiempo Real (Fase 7)
 
-Este documento detalla la implementación, calibración y cierre técnico del **Dashboard de Administración Corporativa (Backoffice)** para la plataforma de simulación e-commerce Voke Brasil. El sistema permite el monitoreo logístico y financiero en tiempo real, operando de manera exclusiva en el entorno del administrador y totalmente aislado de la vista del cliente final.
+Este documento detalla el desarrollo, calibración y cierre del sistema de monitoreo y control de envíos de la plataforma Voke Brasil. La implementación conecta de forma reactiva las decisiones del backoffice del administrador con la experiencia de usuario del cliente final.
 
-## 🛠️ Arquitectura y Tecnologías Consolidadas
-- **Frontend (React.js):** Diseño reactivo de indicadores comerciales en `DashboardAdmin.jsx`. Implementación de desestructuración atómica y blindada contra ciclos asíncronos y conversión segura de respuestas HTTP.
-- **Backend (Node.js & Express):** Creación del enrutador jerárquico `/api/dashboard` protegido bajo el middleware de seguridad `autenticarToken`.
-- **Base de Datos (PostgreSQL):** Diseño de consultas de agregación relacional complejas y subconsultas condicionales (`SUM(CASE WHEN...)`) con el driver `pg`.
-
----
-
-## 🚀 Implementaciones y Reglas de Negocio Verificadas
-
-### 1. Monitoreo Financiero y Flujo de Ganancias
-- **Indicador Cohesivo (Finanzas):** El backend ejecuta una consulta de agregación utilizando la directiva `COALESCE` sobre la tabla `pedidos`, buscando de forma estricta los registros cuyo estado sea `'Pago Aprovado'`. 
-- Se resolvió un desajuste de sensibilidad a las mayúsculas (Case Sensitivity) entre controladores, logrando que el monto total acumulado de ventas (**`R$ 3.990,00`**) impacte y brille de manera correcta y automática en la tarjeta financiera del frontend.
-
-### 2. Sincronización y Conversión Logística (Mapeo Inteligente de Envíos)
-- **Control de Despachos:** Implementación de una matriz clásica de conteo en el servidor que evalúa la columna `status_envio` para clasificar las órdenes en: *Pendientes, Despachados, En camino, Completados, Devueltos y No entregados*.
-- **Solución al Bloqueo de Tipos (BigInt a Number):** Debido a que PostgreSQL devuelve los conteos numéricos (`COUNT`/`SUM`) bajo el tipo de dato `BigInt` (el cual viaja en la red como cadena de texto o string), se inyectó una capa de saneamiento manual en el controlador utilizando la envoltura `Number(rawLogistica.propiedad)`. 
-- Esto, sumado al calce estricto del índice del arreglo (`rows[0]`) en la desestructuración de Axios, permitió destrabar el renderizado visual del frontend, reflejando instantáneamente el número real de pedidos (**`8 Pendientes`**) en las barras de indicadores de colores.
-
-### 3. Registro en Cascada en la Tabla Hija (`pedido_elementos`)
-- Se reestructuró el bucle de persistencia en el controlador de pagos. Ahora, al confirmarse la compra, el sistema ejecuta un mapeo iterativo para insertar de forma histórica cada artículo adquirido dentro de la tabla hija `pedido_elementos` resguardando el `precio_historico` del momento exacto de la venta. Esto alimenta correctamente las consultas analíticas de ranking de productos más vendidos.
-
-### 4. Blindaje de Seguridad ABM en la Tabla `categorias`
-- Se implementó la regla de negocio estricta solicitada para la gestión del catálogo invisible. Al listar las categorías en el panel, el backend calcula el inventario combinado de todos los productos vinculados a cada una.
-- Si una categoría posee productos asociados en la base de datos cuyo stock sea mayor a cero (`stock > 0`), el frontend deshabilita el gatillo de eliminación y renderiza un candado de seguridad (**`🔒 Bloqueado`**). Se prohíbe la destrucción física de la categoría en PostgreSQL para proteger la integridad referencial de la tienda.
+## 🛠️ Arquitectura y Flujo de Componentes
+- **Backend (Node.js & PostgreSQL):** Creación del enrutador dedicado `logisticaRoutes.js` para procesar consultas complejas de agregación, historiales de auditoría y actualizaciones masivas.
+- **Frontend (React.js):** Sincronización asíncrona mediante el estado global `ultimoPedidoId` en `Navbar.jsx` y diseño de la línea de tiempo interactiva en `SeguimientoEnvio.jsx`.
 
 ---
 
-## 🎨 Estándares de Diseño y Código Limpio Aplicados
-1. **Cero Estilos Inline:** Todas las tablas administrativas, las píldoras de alerta de almacén (`pill-critico` / `pill-optimo`) y las tarjetas de indicadores logísticos se estilizaron formalmente mediante variables globales en el archivo central `index.css`.
-2. **Propiedades de Control Semánticas:** Se utilizaron botones con el atributo condicional `disabled={parseInt(cat.stock_total) > 0}` para asegurar que las restricciones de inventario se validen directamente en el árbol de renderizado del cliente antes de enviar peticiones a la red.
-JAGQ
+## 🚀 Funcionalidades y Reglas de Negocio Certificadas
+
+### 1. Panel de Gestión de Órdenes y Despacho en un Clic (Backoffice)
+Se incorporó una nueva matriz de control dentro del Dashboard del Administrador que expone todas las compras efectuadas en PostgreSQL. 
+- Cada fila implementa un selector dinámico (`<select>`). Al alterar el estatus (ej: de *'Pendiente'* a *'En camino'*), el backend ejecuta una transacción `BEGIN/COMMIT` que actualiza la columna `status_envio` en la tabla `pedidos` e inserta automáticamente un nodo de auditoría en la tabla hija `seguimiento_envios`. Esto actualiza de forma reactiva y en vivo las barras analíticas de colores del tablero superior.
+
+### 2. Saneamiento de Integridad Financiera
+Se resolvieron discrepancias semánticas en la base de datos de pruebas mediante consultas correctivas directas (`UPDATE pedidos`), asegurando que la columna `estado_pago` refleje estados estrictamente monetarios (*'Pago Aprovado'*) y se separe de forma limpia de las directivas logísticas.
+### 3. Accesibilidad de un Clic y Automatización de Rastreo (Navbar)
+Para romper las barreras informáticas de usuarios no expertos, se eliminó la necesidad de digitar códigos o adivinar URLs manuales:
+- Al iniciar sesión, la `Navbar.jsx` ejecuta una consulta paralela silenciosa que identifica el ID de la última orden de compra del cliente en PostgreSQL, guardándolo en el estado `ultimoPedidoId`.
+- Se despliega el botón reactivo **`🚚 Rastrear Meu Envio`**. Al presionarlo, el sistema autocompleta la ruta y transporta al usuario directamente a su bitácora de despacho. Al cerrar sesión (` Sair`), el botón se destruye para proteger los datos logísticos de terceros.
+
+### 4. Línea de Tiempo Dinámica (Timeline) y Botón de Retorno Seguro
+El componente `SeguimientoEnvio.jsx` renderiza un Timeline vertical interactivo mapeando los nodos con emojis semánticos según el historial de PostgreSQL (`⏳`, `📦`, `🚚`, `✅`, `↩️`, `❌`). 
+- Para cerrar el ciclo de usabilidad con un estándar formal, se inyectó al final de la tarjeta el botón semántico **`⬅️ Voltar ao Catálogo`**. Al presionarlo, el cliente regresa de forma segura a la raíz de la tienda a seguir consumiendo productos sin requerir las flechas del navegador.
+
+---
+
+##  Estándares de Diseño y Código Limpio Aplicados
+- **Cero Estilos Inline:** La barra de conexión vertical de la línea de tiempo (`.voke-timeline-contenedor::before`), las tarjetas de los nodos (`.voke-timeline-contenido`) y el botón de retorno seguro se controlan de manera estrita desde el archivo de estilos central `index.css`.
+- **Prevención de Duplicados en Estados:** Se depuró la lógica superior de la Navbar, removiendo variables obsoletas como `enviosPendientes` y unificando el control bajo el flujo plano de `ultimoPedidoId`.
