@@ -31,6 +31,7 @@ const Login = () => {
 
   // Sincronización estricta al cargar el componente
     useEffect(() => {
+    const cargarPerfilCompleto = async () => {
     const guardado = localStorage.getItem('voke_usuario');
     const token = localStorage.getItem('voke_token');
     
@@ -38,56 +39,59 @@ const Login = () => {
       try {
         const u = JSON.parse(guardado);
         setUser(u);
-        setNombre(u.nome_completo || u.nombre || '');
-        setEmail(u.email || '');
-        setTel(u.telefono || u.tel || '');
-        setNumDoc(u.cpf_cnpj || '');
-        setFecha(u.fecha_nacimiento || '');
-        setSexo(u.sexo || '');
-        
-        // CORRECCIÓN: Si ya hay sesión activa, lo dejamos en 'acceso' de manera informativa
-        // o si vino directo a la ruta, no lo forzamos a saltar al CRUD a menos que pulse un enlace
-        setFaseActual('acceso'); 
+        setEmail(u?.email || '');
+          const response = await api.get(`/auth/usuario/${u.id}`);
+          const datosBD = response.data?.usuario || response.data?.user || response.data;
+          
+          if (datosBD) {
+            // Saneamos y pre-rellenamos los inputs con los datos reales de PostgreSQL
+            setNombre(datosBD.nome_completo || datosBD.nombre || '');
+            setTel(datosBD.telefono || datosBD.tel || datosBD.telefone || '');
+            setNumDoc(datosBD.cpf_cnpj || '');
+            setFecha(datosBD.fecha_nacimiento || '');
+            setSexo(datosBD.sexo || '');
+          }
+          setFaseActual('perfil'); 
       } catch (e) {
-        localStorage.clear();
-        setUser(null);
-        setFaseActual('acceso');
+          console.error("Error al traer perfil del CRUD local:", e);
+          // Si hay algún problema, dejamos los datos base informativos para no romper la pantalla
+          const u = JSON.parse(guardado);
+          setNombre(u?.nome_completo || '');
+          setFaseActual('perfil');
       }
     } else {
       setUser(null);
       setFaseActual('acceso'); 
     }
-  }, []);
+  };
+  cargarPerfilCompleto();
+  }, [faseActual]);
 
   // ==========================================
   // FUNCIONES CONTROLADORAS DEL CRUD
   // ==========================================
-  const ingresar = async (e) => {
+    const ingresar = async (e) => {
     e.preventDefault();
     setAlerta({ txt: '', err: false });
     if (!email || !pass) return setAlerta({ txt: 'Por favor, insira e-mail e senha.', err: true });
     
     try {
-      // const response = await fetch('http://localhost:3001/api/auth/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email, contrasena: pass })
-      // });
-      // const data = await response.json();
-
-     // 🚀 MIGRADO A AXIOS: Llama de forma dinámica usando la instancia global 'api'
+      // 🚀 LLAMADA SEGURA CON INSTANCIA DE AXIOS
       const response = await api.post('/auth/login', { email, contrasena: pass });
-      const data = response.data; // En Axios los datos viajan directo en la propiedad 'data'
+      const data = response.data;
 
-      //if (!response.ok) throw new Error(data.error || 'E-mail ou senha incorretos.');
+      // ⚡ DETECTOR Y BLINDAJE DE ESTRUCTURA DATA:
+      // Evaluamos de forma flexible dónde empaquetó el backend el objeto del usuario
+      const usuarioValido = data.usuario || data.user || data;
 
       localStorage.setItem('voke_token', data.token);
-      localStorage.setItem('voke_usuario', JSON.stringify(data.usuario));
+      localStorage.setItem('voke_usuario', JSON.stringify(usuarioValido));
       
-      setUser(data.usuario);
-      setNombre(data.usuario.nome_completo || data.usuario.nombre || '');
-      setEmail(data.usuario.email || '');
-      setTel(data.usuario.telefono || data.usuario.tel || '');
+      // Seteamos los estados usando variables seguras protegidas contra undefined
+      setUser(usuarioValido);
+      setNombre(usuarioValido?.nome_completo || usuarioValido?.nombre || '');
+      setEmail(usuarioValido?.email || '');
+      setTel(usuarioValido?.telefono || usuarioValido?.tel || '');
       
       setContrasenaAnterior('');
       setPass('');
@@ -95,10 +99,12 @@ const Login = () => {
       
       window.dispatchEvent(new Event('carrito_actualizado'));
       
-      // SOLUCIÓN: En lugar de saltar al perfil interno, redirige al inicio a comprar
+      // Redirige de inmediato al catálogo principal a comprar ya logueado
       navigate('/'); 
     } catch (err) {
-      setAlerta({ txt: err.message, err: true });
+      // Captura de forma correcta tanto errores de validación como fallos de red
+      const msg = err.response?.data?.error || err.message || 'E-mail ou senha incorretos.';
+      setAlerta({ txt: msg, err: true });
     }
   };
 
@@ -119,37 +125,33 @@ const Login = () => {
         perfil: 'cliente'
       };
       
-      // const response = await fetch('http://localhost:3001/api/auth/register', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(datos)
-      // });
-      // const data = await response.json();
-     // 🚀 MIGRADO A AXIOS: Se conecta dinámicamente con tu endpoint de Render o Local
+      // 🚀 MIGRADO A AXIOS: Petición directa y adaptativa
       const response = await api.post('/auth/register', datos);
       const data = response.data;
 
-     // if (!response.ok) throw new Error(data.error || 'Erro ao realizar cadastro no sistema.');
-
-      // El usuario ya se insertó con éxito en PostgreSQL. Guardamos las credenciales generadas
+      // Guardamos las credenciales generadas de forma inmediata
       localStorage.setItem('voke_token', data.token);
       localStorage.setItem('voke_usuario', JSON.stringify(data.usuario));
       
+      // Establecemos el estado global para iniciar sesión automáticamente
       setUser(data.usuario);
       
       // LIMPIEZA CLAVE: Se vacían los estados de contraseña del formulario de registro
-      // para que la Fase 3 no herede claves ni dispare errores de validación anteriores
       setContrasenaAnterior('');
       setPass('');
       setConfPass('');
       
       window.dispatchEvent(new Event('carrito_actualizado'));
-      setFaseActual('perfil'); 
+      
+      // ⚡ MODIFICACIÓN SOLICITADA: Envía al cliente logueado directamente a la tienda
+      navigate('/'); 
     } catch (err) {
       localStorage.removeItem('voke_token');
       localStorage.removeItem('voke_usuario');
       setUser(null);
-      setAlerta({ txt: err.message, err: true });
+      // Captura el error real del controlador de Node.js
+      const msg = err.response?.data?.error || err.message || 'Erro ao realizar cadastro no sistema.';
+      setAlerta({ txt: msg, err: true });
     }
   };
 
@@ -157,30 +159,25 @@ const Login = () => {
     e.preventDefault();
     setAlerta({ txt: '', err: false });
     try {
-
-      // const response = await fetch(`http://localhost:3001/api/auth/usuario/${user.id}`, {
-      //   method: 'PUT',
-      //   headers: { 
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${localStorage.getItem('voke_token')}`
-      //   },
-      //   body: JSON.stringify({ nome_completo: nombre, email, telefono: tel })
-      // });
-      // const data = await response.json();
-      // 🚀 MIGRADO A AXIOS (PUT): Envía los campos de perfil de forma encriptada y automática
+      // 🚀 MIGRADO A AXIOS (PUT): Envía los campos de perfil
       const response = await api.put(`/auth/usuario/${user.id}`, { 
         nome_completo: nombre, 
         email, 
         telefono: tel 
       });
       const data = response.data;
-
-      //if (!response.ok) throw new Error(data.error || 'Erro ao atualizar dados cadastrais.');
+      // Determinamos de forma flexible dónde empaquetó el backend el objeto del usuario
+      const usuarioActualizado = data.usuario || data.user || data;
 
       localStorage.setItem('voke_usuario', JSON.stringify(data.usuario));
+           
+      // 🚀 LÍNEA CLAVE: Actualiza el estado en la RAM para que las casillas se queden llenas al instante
+      setUser(usuarioActualizado); 
+      
       setAlerta({ txt: 'Dados pessoais atualizados com sucesso!', err: false });
     } catch (err) {
-      setAlerta({ txt: err.message, err: true });
+      const msg = err.response?.data?.error || err.message || 'Erro ao atualizar dados cadastrais.';
+      setAlerta({ txt: msg, err: true });
     }
   };
 
@@ -191,42 +188,26 @@ const Login = () => {
       return setAlerta({ txt: 'A senha anterior e a nova senha são obrigatórias.', err: true });
     }
     try {
-      // const response = await fetch(`http://localhost:3001/api/auth/usuario/password/${user.id}`, {
-      //   method: 'PUT',
-      //   headers: { 
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${localStorage.getItem('voke_token')}`
-      //   },
-      //   body: JSON.stringify({ contrasenaAnterior, nuevaContrasena: pass })
-      // });
-      // const data = await response.json();
-      // 🚀 MIGRADO A AXIOS (PUT): El interceptor inyecta de forma automática tus tokens de seguridad
-      const response = await api.put(`/auth/usuario/password/${user.id}`, { 
+      // 🚀 MIGRADO A AXIOS (PUT): Envía las contraseñas para actualización
+      await api.put(`/auth/usuario/password/${user.id}`, { 
         contrasenaAnterior, 
         nuevaContrasena: pass 
       });
-
-      //if (!response.ok) throw new Error(data.error || 'Senha anterior incorreta. Verifique os dados.');
 
       setAlerta({ txt: 'Senha alterada com sucesso!', err: false });
       setContrasenaAnterior('');
       setPass('');
     } catch (err) {
-      setAlerta({ txt: err.message, err: true });
+      const msg = err.response?.data?.error || err.message || 'Senha anterior incorreta. Verifique os dados.';
+      setAlerta({ txt: msg, err: true });
     }
   };
 
   const eliminar = async () => {
     if (window.confirm("Deseja excluir permanentemente sua conta da Voke? Esta ação executará o método DELETE do CRUD.")) {
       try {
-        // const response = await fetch(`http://localhost:3001/api/auth/usuario/${user.id}`, {
-        //   method: 'DELETE',
-        //   headers: { 'Authorization': `Bearer ${localStorage.getItem('voke_token')}` }
-        // });
         // 🚀 MIGRADO A AXIOS (DELETE): Ejecuta la remoción total del usuario en PostgreSQL
         await api.delete(`/auth/usuario/${user.id}`);
-        
-       // if (!response.ok) throw new Error('Erro ao deletar usuário do banco de dados.');
 
         localStorage.clear();
         setUser(null);
@@ -238,11 +219,13 @@ const Login = () => {
         setFaseActual('acceso');
         navigate('/');
       } catch (err) {
-        setAlerta({ txt: err.message, err: true });
+        const msg = err.response?.data?.error || err.message || 'Erro ao deletar usuário do banco de dados.';
+        setAlerta({ txt: msg, err: true });
       }
     }
   };
-    // ==========================================
+
+  // ==========================================
   // RENDERIZADO VISUAL DEL COMPONENTE
   // ==========================================
   return (
@@ -254,6 +237,12 @@ const Login = () => {
           <p className="voke-logo-sub">Simulação Loja Brasil</p>
         </div>
 
+        {/* 🕵️‍♂️ LÍNEA DE DEPURACIÓN TEMPORAL DE DATOS (ELIMINAR AL FINAL) */}
+         {/* <pre style={{ fontSize: '10px', background: '#eee', padding: '10px', overflowX: 'auto', color: 'black' }}>
+          {JSON.stringify(user, null, 2)}
+        </pre>  */}
+
+
         {alerta.txt && (
           <div className={`voke-alerta-box ${alerta.err ? 'voke-alerta-error' : 'voke-alerta-success'}`}>
             {alerta.txt}
@@ -261,7 +250,6 @@ const Login = () => {
         )}
 
         {/* --- FASE 1: ACCESO --- */}
-                {/* --- FASE 1: ACCESO INFORMATIVO --- */}
         {faseActual === 'acceso' && (
           <div>
             {!user ? (
@@ -306,9 +294,10 @@ const Login = () => {
                   Ir às Compras (Ver Produtos)
                 </button>
 
-                <div className="voke-login-footer-info" style={{ textAlign: 'center' }}>
+                {/* MIGRACIÓN DE ESTILOS: Se añade la nueva clase css voke-login-footer-centered */}
+                <div className="voke-login-footer-info voke-login-footer-centered">
                   <p className="voke-form-subtitle-text">¿Deseja atualizar seu perfil ou senha?</p>
-                  <span onClick={() => setFaseActual('perfil')} className="voke-login-link-blue" style={{ marginTop: '8px', display: 'inline-block' }}>
+                  <span onClick={() => setFaseActual('perfil')} className="voke-login-link-blue voke-login-link-block">
                     Alterar meus dados cadastrais
                   </span>
                 </div>
@@ -316,7 +305,6 @@ const Login = () => {
             )}
           </div>
         )}
-
         {/* --- FASE 2: REGISTRO EXTENDIDO --- */}
         {faseActual === 'registro' && !user && (
           <form onSubmit={registrar}>
@@ -409,6 +397,17 @@ const Login = () => {
         {/* --- FASE 3: DADOS DO CLIENTE (PANEL CRUD POST-REGISTRO O LOGIN) --- */}
         {faseActual === 'perfil' && user && (
           <div className="voke-perfil-container">
+            {/* 🚀 BOTÓN NUEVO: Permite regresar al catálogo de productos inmediatamente sin deslogar */}
+            <div className="voke-profile-return-wrapper">
+              <button 
+                type="button" 
+                onClick={() => navigate('/')} 
+                className="voke-submit-btn-black voke-btn-return-full"
+              >
+                Voltar para a Loja (Ver Produtos)
+              </button>
+            </div>  
+
             
             {/* SECCIÓN 1: MODIFICAR DATOS BÁSICOS (PUT DATOS) */}
             <form onSubmit={modificarDatosBasicos} className="voke-profile-section-form">
@@ -460,21 +459,48 @@ const Login = () => {
 
             {/* SECCIÓN 3: ELIMINAR CUENTA (DELETE) Y CERRAR SESIÓN */}
             <div className="voke-profile-delete-zone">
-              <p className="voke-delete-warning-text">¿Desea cerrar su cuenta permanentemente?</p>
-              
-              <button type="button" onClick={eliminar} className="voke-btn-eliminar">
+
+              <p className="voke-delete-warning-text">¿Deseja cerrar su cuenta permanentemente?</p>
+               <button type="button" onClick={eliminar} className="voke-btn-eliminar">
                 Excluir Conta (DELETE)
               </button>
 
-              {/* NUEVO BOTÓN: Agrega esta línea abajo para poder salir de la pantalla de inmediato */}
+              {/* MIGRACIÓN DE ESTILOS: Se remueven los estilos en línea y se añade voke-btn-logout-full */}
+                           {/* CORRECCIÓN DE FLUJO SEGURO: Limpieza sin conflictos de alcance de variables */}
               <button 
                 type="button" 
-                onClick={() => { localStorage.clear(); setUser(null); setFaseActual('acceso'); }} 
-                className="voke-btn-volver" 
-                style={{ marginTop: '12px', width: '100%' }}
+                onClick={() => { 
+                  localStorage.clear(); 
+                  
+                  // Evaluamos de forma segura si la función modificadora existe localmente antes de invocarla
+                  if (typeof setUser === 'function') {
+                    setUser(null);
+                  }
+                  
+                  // Despachamos el evento global nativo para notificar al Navbar y al Carrito
+                  window.dispatchEvent(new Event('carrito_actualizado'));
+                  
+                  setFaseActual('acceso'); 
+                  navigate('/');
+                }} 
+                className="voke-btn-volver voke-btn-logout-full"
               >
                 Sair da Conta (Logout)
               </button>
+
+              {/* <button 
+                type="button" 
+                onClick={() => { 
+                  localStorage.clear(); 
+                  setUser(null); 
+                  window.dispatchEvent(new Event('carrito_actualizado'));
+                  setFaseActual('acceso'); 
+                  navigate('/');
+                }} 
+                className="voke-btn-volver voke-btn-logout-full"
+              >
+                Sair da Conta (Logout)
+              </button> */}
             </div>
 
           </div>

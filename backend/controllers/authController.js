@@ -179,8 +179,6 @@ const modificarContrasena = async (req, res) => {
         res.status(500).json({ error: "Error interno del servidor al actualizar contraseña." });
     }
 };
-
-// 5. ELIMINAR CUENTA DE USUARIO PERMANENTEMENTE (DELETE)
 // 5. ELIMINAR CUENTA DE USUARIO PERMANENTEMENTE (DELETE)
 const eliminarUsuario = async (req, res) => {
     const { id } = req.params;
@@ -212,6 +210,42 @@ const eliminarUsuario = async (req, res) => {
     } finally {
         client.release();
     }
+};
+// 🕵️‍♂️ FUNCIÓN CONTROLADORA: Consulta el perfil del cliente directo en PostgreSQL
+// 🕵️‍♂️ FUNCIÓN CONTROLADORA CALIBRADA CON TU TABLA RELACIONAL REAL
+const obtenerUsuarioPorId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Consulta relacional exacta apuntando a tu tabla clientes_perfil y tu columna usuario_id
+    const query = `
+        SELECT usuario_id AS id, nome_completo, telefono 
+        FROM clientes_perfil 
+        WHERE usuario_id = $1;
+    `;
+    const resultado = await pool.query(query, [id]);
+    
+    if (resultado.rows.length === 0) {
+      // Si el perfil está vacío en la base de datos local, devolvemos un objeto base para no romper el frontend
+      return res.json({ usuario: { id, nome_completo: '', telefono: '' } });
+    }
+    
+    // Devolvemos el registro mapeado de forma limpia para que el frontend lo procese
+    res.json({ usuario: resultado.rows[0] });
+  } catch (error) {
+    console.error("Error al obtener usuario en el backend controlador:", error);
+    res.status(500).json({ error: 'Erro interno do servidor ao buscar dados do cliente.' });
+  }
+};
+
+// Asegúrate de agregar obtenerUsuarioPorId dentro del module.exports al final del archivo:
+module.exports = {
+  registrarUsuario,
+  loginUsuario,
+  modificarDatosBasicos,
+  modificarContrasena,
+  eliminarUsuario,
+  obtenerUsuarioPorId // <-- Añádelo aquí
 };
 
 // const eliminarUsuario = async (req, res) => {
@@ -253,6 +287,6 @@ const eliminarUsuario = async (req, res) => {
 //     }
 // };
 
-module.exports = {registrarUsuario,loginUsuario,modificarDatosBasicos,modificarContrasena,eliminarUsuario};
+//module.exports = {registrarUsuario,loginUsuario,modificarDatosBasicos,modificarContrasena,eliminarUsuario};
 
 //module.exports = { registrarUsuario, loginUsuario };
