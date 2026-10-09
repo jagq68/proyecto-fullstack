@@ -77,69 +77,6 @@ const Catalogo = () => {
     cargarYFiltrarProductos();
   }, [location.search]);
 
-  //   useEffect(() => {
-//     const cargarYFiltrarProductos = async () => {
-//       setCargando(true);
-//       try {
-//         // 1. Consumimos los datos reales desde PostgreSQL mediante Axios
-//         const respuesta = await api.get('/produtos');
-//         let listaFiltrada = respuesta.data || [];
-//           // IMPRESIÓN DIAGNÓSTICA PARA VER LAS COLUMNAS DE POSTGRESQL
-//         console.log("== 📦 ESTRUCTURA REAL DE UN PRODUCTO EN LA BD == ");
-//         if (listaFiltrada.length > 0) {
-//           console.log(listaFiltrada[0]); // Imprime el primer producto del inventario
-//         } else {
-//           console.log("La base de datos de productos está vacía o el array llegó vacío.");
-//         }
-//         console.log("=================================================");
-
-//         // 2. Extraemos los parámetros de la URL usando la herramienta nativa
-//         const queryParams = new URLSearchParams(location.search);
-//         const terminoBuscar = queryParams.get('buscar')?.toLowerCase().trim() || '';
-//         const terminoCategoria = queryParams.get('categoria')?.toLowerCase().trim() || '';
-//         const terminoMarca = queryParams.get('marca')?.toLowerCase().trim() || '';
-
-//         // 3. REGLA DE FILTRADO POR DEPARTAMENTO / CATEGORÍA (Desde el DrawerMenu)
-//         if (terminoCategoria) {
-//           listaFiltrada = listaFiltrada.filter(prod => {
-//             const categoriaProd = (prod.categoria || '').toLowerCase();
-//             return categoriaProd === terminoCategoria;
-//           });
-//         }
-
-//         // 4. REGLA DE FILTRADO POR MARCA ESPECÍFICA (Desde el submenú del DrawerMenu)
-//         if (terminoMarca) {
-//           listaFiltrada = listaFiltrada.filter(prod => {
-//             const marcaProd = (prod.marca || '').toLowerCase();
-//             return marcaProd === terminoMarca;
-//           });
-//         }
-
-//         // 5. REGLA DE BÚSQUEDA TRADICIONAL (Desde la barra de texto superior)
-//         if (terminoBuscar) {
-//           listaFiltrada = listaFiltrada.filter(prod => {
-//             const nombre = (prod.nombre || '').toLowerCase();
-//             const descripcion = (prod.descripcion || '').toLowerCase();
-//             const marca = (prod.marca || '').toLowerCase();
-            
-//             return nombre.includes(terminoBuscar) || 
-//                    descripcion.includes(terminoBuscar) || 
-//                    marca.includes(terminoBuscar);
-//           });
-//         }
-
-//         // Asentamos la lista final procesada en la vitrina de React
-//         setProductos(listaFiltrada);
-
-//       } catch (error) {
-//         console.error("Erro ao consumir a API de produtos de Voke:", error);
-//       }
-//       setCargando(false);
-//     };
-
-//     cargarYFiltrarProductos();
-//   }, [location.search]);
-
   const manejarAgregarAlCarrito = async (idDelProducto, nombreProducto) => {
     try {
       setNotificacion('');

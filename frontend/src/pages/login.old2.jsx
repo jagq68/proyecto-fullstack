@@ -58,7 +58,6 @@ const Login = () => {
       setFaseActual('acceso'); 
     }
   }, []);
-
   // ==========================================
   // FUNCIONES CONTROLADORAS DEL CRUD
   // ==========================================
@@ -68,18 +67,14 @@ const Login = () => {
     if (!email || !pass) return setAlerta({ txt: 'Por favor, insira e-mail e senha.', err: true });
     
     try {
-      // const response = await fetch('http://localhost:3001/api/auth/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email, contrasena: pass })
-      // });
-      // const data = await response.json();
+      const response = await fetch('http://localhost:3001/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, contrasena: pass })
+      });
+      const data = await response.json();
 
-     // 🚀 MIGRADO A AXIOS: Llama de forma dinámica usando la instancia global 'api'
-      const response = await api.post('/auth/login', { email, contrasena: pass });
-      const data = response.data; // En Axios los datos viajan directo en la propiedad 'data'
-
-      //if (!response.ok) throw new Error(data.error || 'E-mail ou senha incorretos.');
+      if (!response.ok) throw new Error(data.error || 'E-mail ou senha incorretos.');
 
       localStorage.setItem('voke_token', data.token);
       localStorage.setItem('voke_usuario', JSON.stringify(data.usuario));
@@ -119,17 +114,14 @@ const Login = () => {
         perfil: 'cliente'
       };
       
-      // const response = await fetch('http://localhost:3001/api/auth/register', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(datos)
-      // });
-      // const data = await response.json();
-     // 🚀 MIGRADO A AXIOS: Se conecta dinámicamente con tu endpoint de Render o Local
-      const response = await api.post('/auth/register', datos);
-      const data = response.data;
+      const response = await fetch('http://localhost:3001/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datos)
+      });
+      const data = await response.json();
 
-     // if (!response.ok) throw new Error(data.error || 'Erro ao realizar cadastro no sistema.');
+      if (!response.ok) throw new Error(data.error || 'Erro ao realizar cadastro no sistema.');
 
       // El usuario ya se insertó con éxito en PostgreSQL. Guardamos las credenciales generadas
       localStorage.setItem('voke_token', data.token);
@@ -157,25 +149,16 @@ const Login = () => {
     e.preventDefault();
     setAlerta({ txt: '', err: false });
     try {
-
-      // const response = await fetch(`http://localhost:3001/api/auth/usuario/${user.id}`, {
-      //   method: 'PUT',
-      //   headers: { 
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${localStorage.getItem('voke_token')}`
-      //   },
-      //   body: JSON.stringify({ nome_completo: nombre, email, telefono: tel })
-      // });
-      // const data = await response.json();
-      // 🚀 MIGRADO A AXIOS (PUT): Envía los campos de perfil de forma encriptada y automática
-      const response = await api.put(`/auth/usuario/${user.id}`, { 
-        nome_completo: nombre, 
-        email, 
-        telefono: tel 
+      const response = await fetch(`http://localhost:3001/api/auth/usuario/${user.id}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('voke_token')}`
+        },
+        body: JSON.stringify({ nome_completo: nombre, email, telefono: tel })
       });
-      const data = response.data;
-
-      //if (!response.ok) throw new Error(data.error || 'Erro ao atualizar dados cadastrais.');
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Erro ao atualizar dados cadastrais.');
 
       localStorage.setItem('voke_usuario', JSON.stringify(data.usuario));
       setAlerta({ txt: 'Dados pessoais atualizados com sucesso!', err: false });
@@ -191,22 +174,16 @@ const Login = () => {
       return setAlerta({ txt: 'A senha anterior e a nova senha são obrigatórias.', err: true });
     }
     try {
-      // const response = await fetch(`http://localhost:3001/api/auth/usuario/password/${user.id}`, {
-      //   method: 'PUT',
-      //   headers: { 
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${localStorage.getItem('voke_token')}`
-      //   },
-      //   body: JSON.stringify({ contrasenaAnterior, nuevaContrasena: pass })
-      // });
-      // const data = await response.json();
-      // 🚀 MIGRADO A AXIOS (PUT): El interceptor inyecta de forma automática tus tokens de seguridad
-      const response = await api.put(`/auth/usuario/password/${user.id}`, { 
-        contrasenaAnterior, 
-        nuevaContrasena: pass 
+      const response = await fetch(`http://localhost:3001/api/auth/usuario/password/${user.id}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('voke_token')}`
+        },
+        body: JSON.stringify({ contrasenaAnterior, nuevaContrasena: pass })
       });
-
-      //if (!response.ok) throw new Error(data.error || 'Senha anterior incorreta. Verifique os dados.');
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Senha anterior incorreta. Verifique os dados.');
 
       setAlerta({ txt: 'Senha alterada com sucesso!', err: false });
       setContrasenaAnterior('');
@@ -219,14 +196,11 @@ const Login = () => {
   const eliminar = async () => {
     if (window.confirm("Deseja excluir permanentemente sua conta da Voke? Esta ação executará o método DELETE do CRUD.")) {
       try {
-        // const response = await fetch(`http://localhost:3001/api/auth/usuario/${user.id}`, {
-        //   method: 'DELETE',
-        //   headers: { 'Authorization': `Bearer ${localStorage.getItem('voke_token')}` }
-        // });
-        // 🚀 MIGRADO A AXIOS (DELETE): Ejecuta la remoción total del usuario en PostgreSQL
-        await api.delete(`/auth/usuario/${user.id}`);
-        
-       // if (!response.ok) throw new Error('Erro ao deletar usuário do banco de dados.');
+        const response = await fetch(`http://localhost:3001/api/auth/usuario/${user.id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('voke_token')}` }
+        });
+        if (!response.ok) throw new Error('Erro ao deletar usuário do banco de dados.');
 
         localStorage.clear();
         setUser(null);
@@ -476,7 +450,6 @@ const Login = () => {
                 Sair da Conta (Logout)
               </button>
             </div>
-
           </div>
         )}
 

@@ -97,48 +97,20 @@ const CheckoutPedido = ({ totalOriginal, itemsCarrito, alCompletarPedido }) => {
         }
       };
 
-    //   const datosPedido = {
-    //     items: itemsCarrito, // Arreglo con { producto_id, cantidad, precio }
-    //     total: totalFinal,
-    //     metodo_pago: metodoPago,
-    //     cuotas: parseInt(cuotas),
-    //     logistica: {
-    //       cep: cep.trim(),
-    //       direccion: direccion.trim(),
-    //       ciudad: ciudad.trim()
-    //     },
-    //     detallesTarjeta: {
-    //       numeroTarjeta: numeroTarjeta.trim(),
-    //       nombreTarjeta: nombreTarjeta.trim().toUpperCase(),
-    //       vencimiento: vencimiento.trim(),
-    //       cvv: cvv.trim()
-    //     }
-    //   };
-//segunda
-    //   const datosPedido = {
-    //     items: itemsCarrito, // Arreglo con { producto_id, cantidad, precio }
-    //     total: totalFinal,
-    //     metodo_pago: metodoPago,
-    //     cuotas: parseInt(cuotas),
-    //     logistica: {
-    //       cep: cep.trim(),
-    //       direccion: direccion.trim(),
-    //       ciudad: ciudad.trim(),
-    //       status_envio: 'Pendiente' // Estado inicial del despacho en Postgres
-    //     }
-    //   };
-
+      // 🚀 MIGRADO A AXIOS (POST): Se comunica dinámicamente con tu servidor en Render o Local
+      const response = await api.post('/pagos/finalizar', datosPedido);
+      const data = response.data; // En Axios la respuesta del controlador viaja en la propiedad 'data'
       // 4. PETICIÓN HTTP POST A LA API DE PAGOS / PEDIDOS
-      const respuesta = await fetch('http://localhost:3001/api/pagos/finalizar', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(datosPedido)
-      });
+      // const respuesta = await fetch('http://localhost:3001/api/pagos/finalizar', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `Bearer ${token}`
+      //   },
+      //   body: JSON.stringify(datosPedido)
+      // });
 
-      const data = await respuesta.json();
+      //const data = await respuesta.json();
 
       if (!respuesta.ok) {
         throw new Error(data.error || 'Ocurrió un error al procesar el pago o descontar el stock.');
@@ -166,11 +138,6 @@ const CheckoutPedido = ({ totalOriginal, itemsCarrito, alCompletarPedido }) => {
       
       window.dispatchEvent(new Event('carrito_actualizado'));
       navigate('/'); 
-
-
-    //   window.dispatchEvent(new Event('carrito_actualizado'));
-    //   if (alCompletarPedido) alCompletarPedido();
-    //   navigate('/'); // Redirige al catálogo de productos tras la compra exitosa
 
     } catch (err) {
       setErrorCheckout(err.message);
