@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+// 🚀 AJUSTE DE HOSTER: Incluye la IP numérica local para evitar descalces en la laptop
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
 // 🚀 DETECTOR DE ENTORNO AUTOMÁTICO:
-const isLocal = window.location.hostname === 'localhost';
+//const isLocal = window.location.hostname === 'localhost';
 
 const api = axios.create({
     baseURL: isLocal 
@@ -25,26 +28,52 @@ api.interceptors.request.use((config) => {
     return Promise.reject(error);
 });
 
-// ⚡ INTERCEPTOR DE RESPUESTAS (ADAPTADOR DE SERIALIZACIÓN PARA RENDER)
-// Asegura que el formato del array de imágenes de la nube sea 100% idéntico al local
+// ⚡ INTERCEPTOR DE RESPUESTAS CORREGIDO Y BLINDADO CONTRA ENTORNO EN BLANCO
 api.interceptors.response.use((response) => {
-    if (response.data && Array.isArray(response.data)) {
-        response.data = response.data.map(prod => {
-            // Si las imágenes vienen en formato de texto JSON string debido a PostgreSQL de Render, las parsea
-            if (typeof prod.imagenes === 'string') {
-                try {
-                    prod.imagenes = JSON.parse(prod.imagenes);
-                } catch (e) {
-                    console.error("Error parseando imágenes en Render:", e);
+    if (response.data) {
+        // Buscamos de forma flexible dónde vienen los productos en Render
+        let productos = Array.isArray(response.data) 
+            ? response.data 
+            : (response.data.productos || response.data.produtos || null);
+
+        if (Array.isArray(productos)) {
+            productos.forEach(prod => {
+                // Parsea de forma segura si PostgreSQL en Render guardó las imágenes como texto
+                if (typeof prod.imagenes === 'string') {
+                    try {
+                        prod.imagenes = JSON.parse(prod.imagenes);
+                    } catch (e) {
+                        console.error("Error parseando imágenes en Render:", e);
+                    }
                 }
-            }
-            return prod;
-        });
+            });
+        }
     }
-    return response;
+    return response; // 🚀 SE GARANTIZA EL RETORNO DE LA RESPUESTA AL COMPONENTE SIEMPRE
 }, (error) => {
     return Promise.reject(error);
 });
+
+// ⚡ INTERCEPTOR DE RESPUESTAS (ADAPTADOR DE SERIALIZACIÓN PARA RENDER)
+// Asegura que el formato del array de imágenes de la nube sea 100% idéntico al local
+// api.interceptors.response.use((response) => {
+//     if (response.data && Array.isArray(response.data)) {
+//         response.data = response.data.map(prod => {
+//             // Si las imágenes vienen en formato de texto JSON string debido a PostgreSQL de Render, las parsea
+//             if (typeof prod.imagenes === 'string') {
+//                 try {
+//                     prod.imagenes = JSON.parse(prod.imagenes);
+//                 } catch (e) {
+//                     console.error("Error parseando imágenes en Render:", e);
+//                 }
+//             }
+//             return prod;
+//         });
+//     }
+//     return response;
+// }, (error) => {
+//     return Promise.reject(error);
+// });
 
 export default api;
 

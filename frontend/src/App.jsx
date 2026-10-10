@@ -26,7 +26,8 @@ function App() {
   const isLocal = window.location.hostname === 'localhost';
 
   return (
-    <Router basename={isLocal ? "/" : "/proyecto-fullstack"}>
+   <Router basename={isLocal ? "/" : "/proyecto-fullstack"}>
+    <navbar />
       <div className="voke-layout-wrapper">
         <Routes>
           {/* Rutas Públicas de la Tienda Comercial */}

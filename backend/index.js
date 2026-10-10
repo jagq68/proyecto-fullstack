@@ -16,30 +16,34 @@ const chatbotRoutes = require('./routes/chatbotRoutes');
 const logisticaRoutes = require('./routes/logisticaRoutes');
 
 const app = express();
+// 1. Declaramos la lista de servidores autorizados a consumir datos
+const origenesPermitidos = [
+  'http://localhost:5173',          // Tu desarrollo en la laptop
+  'http://127.0.0.1:5173',         // Tu desarrollo local por IP
+  'https://github.io'       // Tu tienda oficial publicada en internet
+];
 
-
-
-
-// ==========================================
-// 1. CONFIGURACIÓN DE MIDDLEWARES GLOBALES
-// ==========================================
-// 🚀 CONFIGURACIÓN DE SEGURIDAD INTEGRAL PARA LA NUBE Y LOCAL
-// const opcionesCors = {
-//   origin: [
-//     'http://localhost:5173',                  // Tu frontend local en la laptop
-//     'https://github.io'                // Tu frontend oficial publicado en internet
-//   ],
-//   credentials: true,                          // ¡OBLIGATORIO! Permite que el registro y login envíen datos de usuario a la nube
-//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-//   allowedHeaders: ['Content-Type', 'Authorization']
-// };
-// 🚀 REGLA DE ORO LOCAL: Abre las compuertas de datos para evitar el "Error de red"
+// 2. Aplicamos la función validadora adaptativa de origen cruzado
 app.use(cors({
-    origin: 'http://localhost:5173', // El puerto exacto donde corre tu frontend
-    credentials: true,               // Permite el intercambio seguro de tokens y contraseñas
+    origin: function (origin, callback) {
+        // Si la petición no trae origen (como un comando interno del servidor) o está en la lista autorizada
+        if (!origin || origenesPermitidos.indexOf(origin) !== -1) {
+            callback(null, true); // ✅ Autorizado de forma segura
+        } else {
+            callback(new Error('Bloqueado por políticas de CORS de Voke')); // ❌ Bloqueado por seguridad
+        }
+    },
+    credentials: true,               // Mantiene tu permiso para intercambio de tokens de sesión
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// app.use(cors({
+//     origin: 'http://localhost:5173', // El puerto exacto donde corre tu frontend  
+//     credentials: true,               // Permite el intercambio seguro de tokens y contraseñas
+//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type', 'Authorization']
+// }));
 //app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
