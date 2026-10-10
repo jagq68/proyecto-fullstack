@@ -1,6 +1,6 @@
 # 🚀 Voke Brasil - Plataforma de Simulación Logística y E-Commerce
 
-Este es el proyecto integrador fullstack desarrollado para la plataforma comercial de **Voke Brasil**. Cuenta con una arquitectura desacoplada orientada a servicios, base de datos relacional y un motor de simulación de despacho en tiempo real con línea de tiempo interactiva.
+Este es el proyecto integrador fullstack(TOTI) desarrollado como prueba para la plataforma comercial de **Voke Brasil**. Cuenta con una arquitectura desacoplada orientada a servicios, base de datos relacional y un motor de simulación de despacho en tiempo real con línea de tiempo interactiva.
 
 ## 🛠️ Arquitectura del Sistema
 
