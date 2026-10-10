@@ -17,27 +17,32 @@ const logisticaRoutes = require('./routes/logisticaRoutes');
 
 const app = express();
 // 1. Declaramos la lista de servidores autorizados a consumir datos
-const origenesPermitidos = [
-  'http://localhost:5173',          // Tu desarrollo en la laptop
-  'http://127.0.0.1:5173',         // Tu desarrollo local por IP
-  'https://github.io'       // Tu tienda oficial publicada en internet
-];
+// const origenesPermitidos = [
+//   'http://localhost:5173',          // Tu desarrollo en la laptop
+//   'http://127.0.0.1:5173',         // Tu desarrollo local por IP
+//   'https://github.io'       // Tu tienda oficial publicada en internet
+// ];
 
 // 2. Aplicamos la función validadora adaptativa de origen cruzado
+// 🚀 REGLA DE SEGURIDAD UNIVERSAL PARA ENTORNO DE PRODUCCIÓN Y LOCAL
 app.use(cors({
     origin: function (origin, callback) {
-        // Si la petición no trae origen (como un comando interno del servidor) o está en la lista autorizada
-        if (!origin || origenesPermitidos.indexOf(origin) !== -1) {
-            callback(null, true); // ✅ Autorizado de forma segura
+        // 1. Si la petición es interna del mismo servidor (sin origin) o viene de tu laptop
+        if (!origin || 
+            origin.startsWith('http://localhost:') || 
+            origin.startsWith('http://127.0.0.1:') || 
+            // 2. ⚡ FILTRO EXCLUSIVO DE INTERNET: Autoriza de golpe tu perfil oficial de GitHub Pages
+            origin.startsWith('https://jagq68.github.io')) {
+            
+            callback(null, true); // ✅ Permitido de forma legítima
         } else {
             callback(new Error('Bloqueado por políticas de CORS de Voke')); // ❌ Bloqueado por seguridad
         }
     },
-    credentials: true,               // Mantiene tu permiso para intercambio de tokens de sesión
+    credentials: true,               // Permite el intercambio seguro de tokens y cookies de sesión
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
 // app.use(cors({ 101026
 //     origin: 'http://localhost:5173', // El puerto exacto donde corre tu frontend  
 //     credentials: true,               // Permite el intercambio seguro de tokens y contraseñas
