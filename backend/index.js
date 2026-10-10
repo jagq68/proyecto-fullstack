@@ -38,7 +38,7 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// app.use(cors({
+// app.use(cors({ 101026
 //     origin: 'http://localhost:5173', // El puerto exacto donde corre tu frontend  
 //     credentials: true,               // Permite el intercambio seguro de tokens y contraseñas
 //     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -54,7 +54,11 @@ const pool = new Pool({
     password: process.env.DB_PASSWORD || 'root',
     host: process.env.DB_HOST || 'localhost',
     port: process.env.DB_PORT || 5432,
-    database: process.env.DB_NAME || 'ecommerce'
+    database: process.env.DB_NAME || 'ecommerce',//102026
+    // 🚀 LÍNEA CLAVE: Si detecta que está corriendo en Render (porque tiene DB_HOST externo), activa el SSL seguro
+    ssl: process.env.DB_HOST && process.env.DB_HOST !== 'localhost' 
+        ? { rejectUnauthorized: false } 
+        : false
 });
 
 // ==========================================
