@@ -28,44 +28,92 @@ const Login = () => {
 
   const [user, setUser] = useState(null);
   const [alerta, setAlerta] = useState({ txt: '', err: false });
-
-  // Sincronización estricta al cargar el componente
-    useEffect(() => {
-    const cargarPerfilCompleto = async () => {
+  // 🔐 SINCRONIZACIÓN ESTRICTA DEL CRUD PROTEGIDA CONTRA BUCLES EN EL REGISTRO
+  useEffect(() => {
     const guardado = localStorage.getItem('voke_usuario');
     const token = localStorage.getItem('voke_token');
-    
-    if (guardado && token) {
+
+    // ⚡ LÍNEA DE ESCAPE DEFINITIVA: Si no hay sesión activa, bloqueamos el useEffect de inmediato.
+    // Esto permite que cambies a la fase de 'registro' libremente sin que el sistema te regrese a 'acceso'.
+    if (!guardado || !token) {
+      setUser(null);
+      // Solo forzamos 'acceso' si la fase actual no es 'registro' para no congelar el botón
+      if (faseActual !== 'registro') {
+        setFaseActual('acceso');
+      }
+      return; // Detiene la ejecución aquí y protege el formulario
+    }
+
+    const cargarPerfilCompleto = async () => {
       try {
         const u = JSON.parse(guardado);
         setUser(u);
         setEmail(u?.email || '');
-          const response = await api.get(`/auth/usuario/${u.id}`);
-          const datosBD = response.data?.usuario || response.data?.user || response.data;
-          
-          if (datosBD) {
-            // Saneamos y pre-rellenamos los inputs con los datos reales de PostgreSQL
-            setNombre(datosBD.nome_completo || datosBD.nombre || '');
-            setTel(datosBD.telefono || datosBD.tel || datosBD.telefone || '');
-            setNumDoc(datosBD.cpf_cnpj || '');
-            setFecha(datosBD.fecha_nacimiento || '');
-            setSexo(datosBD.sexo || '');
-          }
-          setFaseActual('perfil'); 
+        
+        // Consulta relacional directa a tu tabla de usuarios o perfiles
+        const response = await api.get(`/auth/usuario/${u.id}`);
+        const datosBD = response.data?.usuario || response.data?.user || response.data;
+        
+        if (datosBD) {
+          // Saneamos y pre-rellenamos los inputs con los datos reales de PostgreSQL
+          setNombre(datosBD.nome_completo || datosBD.nombre || '');
+          setTel(datosBD.telefono || datosBD.tel || datosBD.telefone || '');
+          setNumDoc(datosBD.cpf_cnpj || '');
+          setFecha(datosBD.fecha_nacimiento || '');
+          setSexo(datosBD.sexo || '');
+        }
+        setFaseActual('perfil'); 
       } catch (e) {
           console.error("Error al traer perfil del CRUD local:", e);
-          // Si hay algún problema, dejamos los datos base informativos para no romper la pantalla
           const u = JSON.parse(guardado);
           setNombre(u?.nome_completo || '');
           setFaseActual('perfil');
       }
-    } else {
-      setUser(null);
-      setFaseActual('acceso'); 
-    }
-  };
-  cargarPerfilCompleto();
-  }, [faseActual]);
+    };
+
+    cargarPerfilCompleto();
+
+  // 🚀 MANTENEMOS TU DEPENDÈNCIA ORIGINAL: Sincroniza el CRUD tras cada guardado (PUT)
+  }, [faseActual]); 
+
+  // Sincronización estricta al cargar el componente
+  //   useEffect(() => {
+  //   const cargarPerfilCompleto = async () => {
+  //   const guardado = localStorage.getItem('voke_usuario');
+  //   const token = localStorage.getItem('voke_token');
+    
+  //   if (guardado && token) {
+  //     try {
+  //       const u = JSON.parse(guardado);
+  //       setUser(u);
+  //       setEmail(u?.email || '');
+  //         const response = await api.get(`/auth/usuario/${u.id}`);
+  //         const datosBD = response.data?.usuario || response.data?.user || response.data;
+          
+  //         if (datosBD) {
+  //           // Saneamos y pre-rellenamos los inputs con los datos reales de PostgreSQL
+  //           setNombre(datosBD.nome_completo || datosBD.nombre || '');
+  //           setTel(datosBD.telefono || datosBD.tel || datosBD.telefone || '');
+  //           setNumDoc(datosBD.cpf_cnpj || '');
+  //           setFecha(datosBD.fecha_nacimiento || '');
+  //           setSexo(datosBD.sexo || '');
+  //         }
+  //         setFaseActual('perfil'); 
+  //     } catch (e) {
+  //         console.error("Error al traer perfil del CRUD local:", e);
+  //         // Si hay algún problema, dejamos los datos base informativos para no romper la pantalla
+  //         const u = JSON.parse(guardado);
+  //         setNombre(u?.nome_completo || '');
+  //         setFaseActual('perfil');
+  //     }
+  //   } else {
+  //     setUser(null);
+  //     setFaseActual('acceso'); 
+  //   }
+  // };
+  // cargarPerfilCompleto();
+  // }, [faseActual]);
+
 
   // ==========================================
   // FUNCIONES CONTROLADORAS DEL CRUD
@@ -100,7 +148,17 @@ const Login = () => {
       window.dispatchEvent(new Event('carrito_actualizado'));
       
       // Redirige de inmediato al catálogo principal a comprar ya logueado
-      navigate('/'); 
+
+   //   navigate('/'); 
+      // 🚀 REDIRECCIÓN INTELIGENTE DE PRODUCCIÓN BASADA EN EL ROL DE POSTGRESQL
+      // Evaluamos el perfil real que devolvió tu controlador de Node.js en Render
+      if (usuarioValido?.perfil?.toLowerCase() === 'admin') {
+        console.log("¡Credenciales de Administrador detectadas! Redirigiendo al Panel...");
+        navigate('/admin/dashboard'); // 📊 Si eres admin, te abre el Dashboard al instante
+      } else {
+        console.log("Credenciales de Cliente detectadas. Redirigiendo a la vitrina...");
+        navigate('/'); // 🛍️ Si eres cliente común, te manda a comprar laptops
+      }
     } catch (err) {
       // Captura de forma correcta tanto errores de validación como fallos de red
       const msg = err.response?.data?.error || err.message || 'E-mail ou senha incorretos.';
@@ -109,8 +167,13 @@ const Login = () => {
   };
 
   const registrar = async (e) => {
-    e.preventDefault();
+        // Protección inteligente: Solo ejecuta preventDefault si el evento y la función existen de verdad
+    if (e && typeof e.preventDefault === 'function') {
+        e.preventDefault();
+    }
+    //e.preventDefault();
     setAlerta({ txt: '', err: false });
+    if (!email || !pass) {return setAlerta({ txt: 'Por favor, preencha e-mail e senha.', err: true });}
     if (pass !== confPass) return setAlerta({ txt: 'As senhas não coincidem.', err: true });
     
     try {
@@ -144,7 +207,17 @@ const Login = () => {
       window.dispatchEvent(new Event('carrito_actualizado'));
       
       // ⚡ MODIFICACIÓN SOLICITADA: Envía al cliente logueado directamente a la tienda
-      navigate('/'); 
+
+      //navigate('/');
+     // 🚀 REDIRECCIÓN INTELIGENTE DE PRODUCCIÓN BASADA EN EL ROL DE POSTGRESQL
+      // Evaluamos el perfil real que devolvió tu controlador de Node.js en Render
+      if (usuarioValido?.perfil?.toLowerCase() === 'admin') {
+        console.log("¡Credenciales de Administrador detectadas! Redirigiendo al Panel...");
+        navigate('/admin/dashboard'); // 📊 Si eres admin, te abre el Dashboard al instante
+      } else {
+        console.log("Credenciales de Cliente detectadas. Redirigiendo a la vitrina...");
+        navigate('/'); // 🛍️ Si eres cliente común, te manda a comprar laptops
+      } 
     } catch (err) {
       localStorage.removeItem('voke_token');
       localStorage.removeItem('voke_usuario');
@@ -273,9 +346,14 @@ const Login = () => {
                 <button type="submit" className="voke-submit-btn-black">Para entrar</button>
                 
                 <div className="voke-login-footer-info">
-                  <p className="voke-form-label">Crear una cuenta</p>
+                  {/* <p className="voke-form-label">Crear una cuenta</p> */}
                   <p className="voke-form-subtitle-text">¿Aún no tienes una cuenta de Voke?</p>
-                  <span onClick={() => setFaseActual('registro')} className="voke-login-link-blue">Registro</span>
+                  <button 
+                    type="button" 
+                    onClick={() => setFaseActual('registro')} 
+                    className="voke-login-link-blue"
+                  >Registrar una Cuenta</button>
+                  {/* <span onClick={() => setFaseActual('registro')} className="voke-login-link-blue">Registro</span> */}
                 </div>
                 
                 <div className="voke-logo-header-forgot">
@@ -297,9 +375,16 @@ const Login = () => {
                 {/* MIGRACIÓN DE ESTILOS: Se añade la nueva clase css voke-login-footer-centered */}
                 <div className="voke-login-footer-info voke-login-footer-centered">
                   <p className="voke-form-subtitle-text">¿Deseja atualizar seu perfil ou senha?</p>
-                  <span onClick={() => setFaseActual('perfil')} className="voke-login-link-blue voke-login-link-block">
+                  <button 
+                    type="button" 
+                    onClick={() => setFaseActual('perfil')} 
+                    className="voke-login-link-blue voke-login-link-block"
+                  >
                     Alterar meus dados cadastrais
-                  </span>
+                  </button>
+                  {/* <span onClick={() => setFaseActual('perfil')} className="voke-login-link-blue voke-login-link-block">
+                    Alterar meus dados cadastrais
+                  </span> */}
                 </div>
               </div>
             )}
@@ -307,7 +392,7 @@ const Login = () => {
         )}
         {/* --- FASE 2: REGISTRO EXTENDIDO --- */}
         {faseActual === 'registro' && !user && (
-          <form onSubmit={registrar}>
+          <form onSubmit={(e) => e.preventDefault()}>
             <div className="voke-form-title-block">
               <h3 className="voke-form-title-text">Crear una cuenta</h3>
             </div>
@@ -390,7 +475,7 @@ const Login = () => {
 
             <div className="voke-buttons-flex">
               <button type="button" onClick={() => setFaseActual('acceso')} className="voke-btn-volver">Volver</button>
-              <button type="submit" className="voke-btn-continuar">Continuar con el registro</button>
+              <button type="button" onClick={registrar} className="voke-btn-continuar">Continuar con el registro</button>
             </div>
           </form>
         )}

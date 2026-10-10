@@ -112,9 +112,9 @@ const CheckoutPedido = ({ totalOriginal, itemsCarrito, alCompletarPedido }) => {
 
       //const data = await respuesta.json();
 
-      if (!respuesta.ok) {
-        throw new Error(data.error || 'Ocurrió un error al procesar el pago o descontar el stock.');
-      }
+      // if (!respuesta.ok) {
+      //   throw new Error(data.error || 'Ocurrió un error al procesar el pago o descontar el stock.');
+      // }
 
       // 5. SIMULACIÓN DE RECIBO DIGITAL POR CORREO ELECTRÓNICO
       alert(`
