@@ -6,20 +6,20 @@ import api from '../config/api';
 import { Link } from 'react-router-dom';
 
 function Inicio() {
-const [produtos, setProdutos] = useState([]);
+  const [produtos, setProdutos] = useState([]);
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
     const carregarProdutos = async () => {
       try {
         const opcionesCatalogo = import.meta.env.DEV
-  ? { baseURL: '/catalog-api' }
-  : {};
+          ? { baseURL: '/catalog-api' }
+          : {};
 
-   const resposta = await api.get('/produtos', opcionesCatalogo);
-    setProdutos(resposta.data || []);
-    console.log('Produtos recebidos na página inicial:', resposta.data);
-   console.log('Primeira imagem:', resposta.data[0]?.imagenes?.[0]);
+        const resposta = await api.get('/produtos', opcionesCatalogo);
+        setProdutos(resposta.data || []);
+
+        console.log('Produtos recebidos na página inicial:', resposta.data);
       } catch (erro) {
         console.error('Erro ao carregar produtos em destaque:', erro);
       } finally {
@@ -29,7 +29,6 @@ const [produtos, setProdutos] = useState([]);
 
     carregarProdutos();
   }, []);
-
 
   return (
     <>
@@ -41,15 +40,18 @@ const [produtos, setProdutos] = useState([]);
         <section className="voke-inicio-boas-vindas">
           <h1>Bem-vindo à Voke Brasil!</h1>
           <p>
-            Tecnologia de qualidade, produtos selecionados
-            e ofertas para facilitar o seu dia a dia.
+            Encontre tecnologia, qualidade e praticidade em um só lugar.
+            Descubra produtos selecionados e ofertas especiais para facilitar
+            o seu dia a dia.
           </p>
-
-         </section>
+        </section>
 
         <section className="voke-inicio-destaques">
           <h2>Produtos em destaque</h2>
-          <p>Confira algumas ofertas especiais da Voke Brasil.</p>
+          <p>
+            Explore nossa seleção de produtos e encontre tecnologia
+            e praticidade para o seu dia a dia.
+          </p>
 
           {carregando ? (
             <p>Carregando produtos...</p>
@@ -62,14 +64,18 @@ const [produtos, setProdutos] = useState([]);
 
                 let urlImagem = 'https://placeholder.com';
 
-                if (Array.isArray(prod.imagenes) && prod.imagenes.length > 0) {
-                urlImagem = prod.imagenes[0];
+                if (
+                  Array.isArray(prod.imagenes) &&
+                  prod.imagenes.length > 0
+                ) {
+                  urlImagem = prod.imagenes[0];
                 } else if (
-               typeof prod.imagenes === 'string' &&
-               prod.imagenes.trim() !== ''
-          ) {
-                urlImagem = prod.imagenes;
-             }
+                  typeof prod.imagenes === 'string' &&
+                  prod.imagenes.trim() !== ''
+                ) {
+                  urlImagem = prod.imagenes;
+                }
+
                 return (
                   <div key={prod.id} className="voke-tarjeta-producto">
                     <div className="voke-tarjeta-imagen-box">

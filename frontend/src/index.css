@@ -430,29 +430,39 @@ padding: 10px 16px;
    ========================================================================== */
 
 /* Contenedor de la vitrina: Alinea las tarjetas una al lado de la otra */
+/* Grade de produtos em destaque */
 .voke-vitrina-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 24px;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 28px;
+    justify-items: center;
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 32px 16px;
+    padding: 32px 20px;
+    box-sizing: border-box;
 }
 
 /* Caja independiente de cada laptop/smartphone */
 .voke-tarjeta-producto {
     background-color: var(--voke-white);
     border: 1px solid var(--voke-light-gray);
-    border-radius: 6px;
+    border-radius: 14px;
     padding: 20px;
-    width: 260px;
+    width: 100%;
+    max-width: 280px;
     min-height: 380px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     box-sizing: border-box;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.voke-tarjeta-producto:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 /* Fila superior interna de la tarjeta (Stock a la izquierda, iconos a la derecha) */
@@ -3293,4 +3303,133 @@ padding: 10px 16px;
     width: 60px;
     height: 60px;
   }
+}
+/* =========================================
+   PÁGINA INICIAL - VOKE BRASIL
+   ========================================= */
+
+.voke-inicio {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #F5F3ED;
+}
+
+.voke-inicio-boas-vindas {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 24px 32px;
+    text-align: center;
+}
+
+.voke-inicio-boas-vindas h1 {
+    color: #295991;
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 800;
+    margin-bottom: 16px;
+}
+
+.voke-inicio-boas-vindas p {
+    max-width: 760px;
+    margin: 0 auto;
+    color: #444;
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+.voke-inicio-destaques {
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 32px 20px 56px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.voke-inicio-destaques h2 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #295991;
+    font-size: clamp(26px, 3vw, 34px);
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    line-height: 1.3;
+    margin-bottom: 14px;
+}
+
+.voke-inicio-destaques > p {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #475569;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.8;
+    margin-bottom: 12px;
+}
+.voke-inicio-destaques > p {
+    color: #555;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.voke-inicio-ver-produtos {
+    display: inline-block;
+    margin-top: 24px;
+    padding: 13px 28px;
+    border-radius: 8px;
+    background-color: #295991;
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.voke-inicio-ver-produtos:hover {
+    background-color: #F4511E;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 600px) {
+    .voke-inicio-boas-vindas {
+        padding: 32px 18px 20px;
+    }
+
+    .voke-inicio-boas-vindas p {
+        font-size: 15px;
+    }
+
+    .voke-inicio-destaques {
+        padding: 24px 12px 40px;
+    }
+}
+/* Tipografia dos cartões de produtos Voke Brasil */
+
+.voke-tarjeta-titulo {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #295991;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.voke-tarjeta-condicion {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.voke-tarjeta-precio-pix {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #F4511E;
+    font-size: 17px;
+    font-weight: 800;
+    margin-top: 12px;
+}
+
+.voke-tarjeta-precio-cuotas {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 6px;
 }
