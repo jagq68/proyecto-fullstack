@@ -77,12 +77,16 @@ video {
 
 /* Fuerza la separación simétrica de los 3 bloques principales */
 .voke-navbar-main {
-    background-color: var(--voke-menu-beige);
-    padding: 12px 24px;
+    background-color: #F5F3ED;
+    padding: 14px 32px;
     display: flex;
-    justify-content: space-between; 
+    justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--voke-light-gray);
+    gap: 24px;
+    border-bottom: 1px solid #e5e1d8;
+    box-shadow: 0 3px 12px rgba(23, 45, 73, 0.08);
+    position: relative;
+    z-index: 20;
 }
 
 /* Logotipo da Voke Brasil */
@@ -127,22 +131,35 @@ video {
 /* Contenedor central del buscador */
 .voke-search-container {
     flex: 1;
-    max-width: 500px;
-    margin: 0 20px;
+    max-width: 560px;
+    margin: 0 24px;
     position: relative;
     display: flex;
     align-items: center;
+    background: #FFFFFF;
+    border: 2px solid #295991;
+    border-radius: 12px;
+    padding: 3px 10px;
+    transition: box-shadow 0.3s ease;
 }
 
+.voke-search-container:focus-within {
+    box-shadow: 0 0 0 4px rgba(41, 89, 145, 0.12);
+}
 .voke-search-input {
     width: 100%;
-    padding: 10px 40px 10px 16px;
-    border-radius: 20px; /* BUSCADOR REDONDEADO REAL */
-    border: 1px solid var(--voke-gray);
-    font-size: 13px;
+    padding: 12px 42px 12px 16px;
+    border-radius: 9px;
+    border: none;
+    font-size: 14px;
     outline: none;
-    background-color: var(--voke-white);
+    background-color: transparent;
+    color: #172D49;
     box-sizing: border-box;
+}
+
+.voke-search-input::placeholder {
+    color: #8793A2;
 }
 
 .voke-search-lupa {
@@ -185,13 +202,60 @@ video {
 }
 
 /* FRANJA INFERIOR FUCSIA REQUERIDA */
+/* MENU INFERIOR — VOKE BRASIL */
 .voke-menu-subbar {
-    background-color: var(--voke-pink);
-    padding: 8px 24px;
-    display: flex;
-    align-items: center;
-    position: relative;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  background: linear-gradient(90deg, #295991, #234D7D);
+  min-height: 54px;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(24, 59, 101, 0.16);
+}
+
+/* LINKS DO MENU */
+.voke-menu-subbar .voke-nav-link {
+  color: #FFFFFF;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  padding: 10px 16px;
+  border-radius: 25px;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+margin: 0 5px;
+padding: 10px 16px;
+
+}
+
+/* EFEITO AO PASSAR O MOUSE */
+.voke-menu-subbar .voke-nav-link:hover {
+  background: #FE97C5;
+  color: #243247;
+  transform: translateY(-2px);
+}
+
+/* CELULAR */
+@media (max-width: 600px) {
+  .voke-menu-subbar {
+    justify-content: flex-start;
+    gap: 5px;
+    padding: 9px 10px;
+    overflow-x: auto;
+  }
+
+  .voke-menu-subbar .voke-nav-link {
+    font-size: 10px;
+    padding: 9px 11px;
+  }
 }
 
 .voke-menu-hamburguesa {
@@ -261,23 +325,33 @@ video {
 
 .voke-submit-btn-black {
     width: 100%;
-    background-color: var(--voke-black);
+    background-color: var(--voke-blue);
     color: var(--voke-white);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: bold;
-    padding: 12px;
+    padding: 14px;
     border-radius: 24px;
     border: none;
     cursor: pointer;
     text-transform: uppercase;
+    transition: background-color 0.2s, transform 0.2s;
 }
 
+.voke-submit-btn-black:hover {
+    background-color: #1f4775;
+    transform: translateY(-1px);
+}
 .voke-login-footer-info {
     text-align: center;
-    padding-top: 16px;
+    padding-top: 20px;
     border-top: 1px solid var(--voke-light-gray);
-    margin-top: 16px;
-    font-size: 12px;
+    margin-top: 20px;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.voke-login-footer-info p {
+    margin: 10px 0;
 }
 
 /* ==========================================================================
@@ -822,21 +896,20 @@ video {
 }
 
 .voke-form-input-text {
-  width: 100%;
-  height: 44px;
-  border: 1px solid var(--voke-gray);
-  border-radius: 4px;
-  padding: 0 14px;
-  font-size: 14px;
-  color: var(--voke-black);
-  background-color: var(--voke-white);
-  box-sizing: border-box;
-  transition: border-color 0.2s ease;
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid var(--voke-gray);
+    border-radius: 10px;
+    font-size: 14px;
+    box-sizing: border-box;
+    outline: none;
+    background-color: #FFFFFF;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .voke-form-input-text:focus {
-  outline: none;
-  border-color: var(--voke-blue);
+    border-color: var(--voke-blue);
+    box-shadow: 0 0 0 3px rgba(41, 89, 145, 0.12);
 }
 
 .voke-form-input-text:disabled {
@@ -1226,7 +1299,7 @@ video {
   line-height: 1;
 }
 
-/* Sección Mi Cuenta */
+/*Seção Minha Conta */
 .voke-drawer-account-section {
   background-color: var(--voke-menu-beige);
   border-bottom: 1px solid var(--voke-light-gray);
