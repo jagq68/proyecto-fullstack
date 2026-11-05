@@ -61,19 +61,22 @@ function Inicio() {
   return (
     <>
       <Navbar />
+      {notificacao && (
+  <div className="voke-toast-notificacion">
+    {notificacao}
+  </div>)}
 
       <main className="voke-inicio">
         <BannerCarousel />
 
         <section className="voke-inicio-boas-vindas">
-          <h1>Bem-vindo à Voke Brasil!</h1>
-          <p>
-            Encontre tecnologia, qualidade e praticidade em um só lugar.
-            Descubra produtos selecionados e ofertas especiais para facilitar
-            o seu dia a dia.
-          </p>
-        </section>
-
+  <h1>Bem-vindo à Voke Brasil!</h1>
+  <p>
+    Tecnologia inteligente para transformar seu dia a dia.
+    Encontre produtos recondicionados com qualidade,
+    garantia e economia.
+  </p>
+</section>
         <section className="voke-inicio-destaques">
           <h2>Produtos em destaque</h2>
           {notificacao && (
