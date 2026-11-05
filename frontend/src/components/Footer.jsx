@@ -99,14 +99,14 @@ const Footer = () => {
       </div>
 
       {/* 3. FAIXA DE DIREITOS AUTORAIS */}
-      <div className="voke-footer-derechos-bg">
-        <div className="voke-footer-derechos-container">
-          AGASUS SEMINOVOS | © 2025-2026 Voke. Todos os direitos reservados.
-          <br />
-          © 2026 Voke Simulação - Desenvolvido por Alberto Guatume para a Turma 58 Toti - Diversidade.
-        </div>
-      </div>
 
+        <div className="voke-footer-derechos-bg">
+  <div className="voke-footer-derechos-container">
+    © 2026 Voke Brasil. Todos os direitos reservados.
+    <br />
+    Projeto desenvolvido pela Turma 58 Toti - Diversidade.
+  </div>
+</div>
     </footer>
   );
 };

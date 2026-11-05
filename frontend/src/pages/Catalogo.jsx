@@ -37,20 +37,27 @@ const Catalogo = () => {
 
         const categoriasData = respuestaCategorias.data || [];
         setCategorias(categoriasData);
+        console.log('PRODUTOS RECEBIDOS:', respuestaProductos.data);
+        console.log('BUSCA NA URL:', location.search);
+        console.log(
+  'DADOS DOS PRODUTOS:',
+  respuestaProductos.data.map(prod => ({
+    nome: prod.nombre,
+    marca: prod.marca,
+    descricao: prod.descripcion,
+    categoria_id: prod.categoria_id
+  }))
+);
 
         let listaFiltrada = Array.isArray(respuestaProductos.data)
           ? respuestaProductos.data
           : [];
 
-        const queryParams = new URLSearchParams(location.search);
-
 // Recupera os filtros da URL
 const queryParams = new URLSearchParams(location.search);
 const terminoBuscar =
   normalizarTexto(queryParams.get('buscar')?.trim() || '');
-
-        const terminoCategoria =
-          queryParams.get('categoria')?.trim() || '';
+const terminoCategoria = queryParams.get('categoria')?.trim() || '';
 
 const terminoMarca =
   normalizarTexto(queryParams.get('marca')?.trim() || '');
@@ -388,13 +395,17 @@ const terminoMarca =
                       </div>
 
                       <div className="voke-tarjeta-detalles">
-                        <h3 className="voke-tarjeta-titulo">{prod.nombre}</h3>
+                        <h3 className="voke-tarjeta-titulo">
+                          {prod.nombre}
+                        </h3>
                         {prod.descripcion?.trim() && (
                           <p className="voke-tarjeta-descricao">
                             {prod.descripcion}
                           </p>
                         )}
-                        <div className="voke-tarjeta-condicion">💖 Muito bom</div>
+                        <div className="voke-tarjeta-condicion">
+                          💖 Muito bom
+                        </div>
 
                         <div className="voke-tarjeta-precios-box">
 

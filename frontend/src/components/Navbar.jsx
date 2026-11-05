@@ -106,12 +106,8 @@ const Navbar = () => {
     }
   };
 
-  const filtrarPorFiltro = (valorFiltro) => {
-    if (valorFiltro === 'ofertas') {
-      navigate('/');
-    } else {
-      navigate(`/?buscar=${encodeURIComponent(valorFiltro)}`);
-    }
+  const filtrarPorFiltro = (filtro) => {
+    navigate(`/produtos?filtro=${encodeURIComponent(filtro)}`);
   };
 
   const consultarCantidadCarrito = async () => {
@@ -192,7 +188,13 @@ const Navbar = () => {
         </form>
 
         <div className="voke-nav-controls">
-          <span className="voke-nav-link" title="Favoritos">🖤</span>
+          <span
+  className="voke-nav-link voke-nav-link-pointer"
+  title="Meus Favoritos"
+  onClick={() => navigate('/favoritos')}
+>
+  🖤
+</span>
 
           {/* ⚡ CONTENEDOR FLOTANTE DEL ICONO DE USUARIO Y SU MENÚ DESPLEGABLE */}
           <div className="voke-profile-menu-container">
@@ -286,12 +288,11 @@ const Navbar = () => {
           </span>
 
           <span
-            className="voke-nav-link"
-            onClick={() => filtrarPorFiltro('ofertas')}
-          >
-            Ofertas
-          </span>
-
+  className="voke-nav-link"
+  onClick={() => filtrarPorFiltro('mais-vendidos')}
+>
+  Mais vendidos
+</span>
           <span
             className="voke-nav-link"
             onClick={() => {

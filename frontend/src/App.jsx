@@ -7,6 +7,8 @@ import QuemSomos from './pages/QuemSomos';
 import Carrito from './pages/Carrito';
 import DashboardAdmin from './pages/DashboardAdmin';
 import SeguimientoEnvio from './pages/SeguimientoEnvio';
+import Favoritos from './pages/Favoritos';
+import MaisVendidos from './pages/MaisVendidos';
 
 // Proteção da rota administrativa
 const ProtegerRutaAdmin = ({ children }) => {
@@ -57,7 +59,8 @@ function App() {
           <Route path="/produtos" element={<Catalogo />} />
           <Route path="/login" element={<Login />} />
           <Route path="/carrinho" element={<Carrito />} />
-
+          <Route path="/favoritos" element={<Favoritos />} />
+          <Route path="/mais-vendidos" element={<MaisVendidos />} />
           {/* Acompanhamento de pedidos */}
           <Route path="/seguimiento" element={<SeguimientoEnvio />} />
           <Route path="/seguimiento/:id" element={<SeguimientoEnvio />} />
