@@ -63,6 +63,8 @@ El registro público siempre crea perfil `cliente`. Las rutas administrativas ex
 
 Login, registro y rastreo público tienen límites de solicitudes por IP con `express-rate-limit`. El almacenamiento de límites es local a cada instancia; si se ejecutan varias instancias detrás de un balanceador, se debe configurar un almacén compartido para que el límite sea global.
 
+La eliminación de una cuenta conserva el historial de pedidos: si el usuario tiene pedidos asociados, la API responde `409 Conflict` y no borra el perfil ni el usuario. En ese caso, el cliente debe contactar con soporte para solicitar la gestión de sus datos.
+
 ---
 
 ## 🛣️ Catálogo Completo de Endpoints

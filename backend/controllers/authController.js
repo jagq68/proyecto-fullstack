@@ -149,9 +149,20 @@ const modificarContrasena = async (req, res) => {
     const { id } = req.params;
     const { contrasenaAnterior, nuevaContrasena } = req.body;
 
+    if (
+        typeof contrasenaAnterior !== 'string' ||
+        !contrasenaAnterior ||
+        typeof nuevaContrasena !== 'string' ||
+        !nuevaContrasena
+    ) {
+        return res.status(400).json({
+            error: "Informe a senha atual e a nova senha."
+        });
+    }
+
     try {
         // Buscar la contraseña actual encriptada
-        const userQuery = 'SELECT * FROM usuarios WHERE id = \$1';
+        const userQuery = 'SELECT id, contrasena FROM usuarios WHERE id = $1';
         const userResult = await pool.query(userQuery, [id]);
 
         if (userResult.rows.length === 0) {
@@ -171,9 +182,12 @@ const modificarContrasena = async (req, res) => {
         const nuevaEncriptada = await bcrypt.hash(nuevaContrasena, salt);
 
         // Actualizar en la tabla
-        await pool.query('UPDATE usuarios SET contrasena = \$1 WHERE id = \$2', [nuevaEncriptada, id]);
+        await pool.query(
+            'UPDATE usuarios SET contrasena = $1 WHERE id = $2',
+            [nuevaEncriptada, id]
+        );
 
-        res.json({ mensaje: "¡Contraseña actualizada con éxito!" });
+        res.json({ mensaje: "Senha atualizada com sucesso." });
     } catch (error) {
         console.error("Error al modificar contraseña:", error);
         res.status(500).json({ error: "Error interno del servidor al actualizar contraseña." });
@@ -186,6 +200,18 @@ const eliminarUsuario = async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
+
+        const pedidosUsuario = await client.query(
+            'SELECT EXISTS (SELECT 1 FROM pedidos WHERE usuario_id = $1) AS possui_pedidos',
+            [id]
+        );
+
+        if (pedidosUsuario.rows[0].possui_pedidos) {
+            await client.query('ROLLBACK');
+            return res.status(409).json({
+                error: "Não é possível excluir uma conta com pedidos registrados. Entre em contato com o suporte para solicitar a exclusão dos seus dados."
+            });
+        }
 
         // 1. Eliminamos primero el perfil extendido usando $1
         const deletePerfilQuery = 'DELETE FROM clientes_perfil WHERE usuario_id = $1;';
@@ -201,7 +227,7 @@ const eliminarUsuario = async (req, res) => {
         }
 
         await client.query('COMMIT');
-        res.json({ mensaje: "¡Cuenta de usuario y perfil eliminados con éxito!" });
+        res.json({ mensaje: "Conta e perfil excluídos com sucesso." });
 
     } catch (error) {
         await client.query('ROLLBACK');

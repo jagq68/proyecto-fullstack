@@ -161,11 +161,20 @@ const Login = () => {
       });
 
       const data = response.data;
-      const usuarioActualizado = data.usuario || data.user || data;
+      const datosActualizados = data.usuario || data.user || data;
+      const usuarioActualizado = {
+        ...user,
+        ...datosActualizados,
+        nome_completo: nombre,
+        telefono: tel
+      };
 
       localStorage.setItem('voke_usuario', JSON.stringify(usuarioActualizado));
       setUser(usuarioActualizado);
-      setAlerta({ txt: 'Dados pessoais atualizados com sucesso!', err: false });
+      setAlerta({
+        txt: data.mensaje || 'Dados pessoais atualizados com sucesso!',
+        err: false
+      });
     } catch (err) {
       const msg = err.response?.data?.error || err.message || 'Erro ao atualizar dados cadastrais.';
       setAlerta({ txt: msg, err: true });
@@ -181,12 +190,15 @@ const Login = () => {
     }
 
     try {
-      await api.put(`/auth/usuario/password/${user.id}`, {
+      const response = await api.put(`/auth/usuario/password/${user.id}`, {
         contrasenaAnterior,
         nuevaContrasena: pass
       });
 
-      setAlerta({ txt: 'Senha alterada com sucesso!', err: false });
+      setAlerta({
+        txt: response.data?.mensaje || 'Senha alterada com sucesso!',
+        err: false
+      });
       setContrasenaAnterior('');
       setPass('');
     } catch (err) {
@@ -196,11 +208,14 @@ const Login = () => {
   };
 
   const eliminar = async () => {
+    setAlerta({ txt: '', err: false });
+
     if (window.confirm('Deseja excluir permanentemente sua conta da Voke? Esta ação executará o método DELETE do CRUD.')) {
       try {
-        await api.delete(`/auth/usuario/${user.id}`);
+        const response = await api.delete(`/auth/usuario/${user.id}`);
 
-        localStorage.clear();
+        localStorage.removeItem('voke_token');
+        localStorage.removeItem('voke_usuario');
         setUser(null);
         setEmail('');
         setPass('');
@@ -208,6 +223,7 @@ const Login = () => {
         setTel('');
         window.dispatchEvent(new Event('carrito_actualizado'));
         setFaseActual('acceso');
+        window.alert(response.data?.mensaje || 'Sua conta foi excluída com sucesso.');
         navigate('/');
       } catch (err) {
         const msg = err.response?.data?.error || err.message || 'Erro ao deletar usuário do banco de dados.';
@@ -290,7 +306,13 @@ const Login = () => {
 
         <div className="voke-login-card-box">
           {alerta.txt && (
-            <div className="voke-alert" role="alert" aria-live="polite">
+            <div
+              className={`voke-alerta-box ${
+                alerta.err ? 'voke-alerta-error' : 'voke-alerta-success'
+              }`}
+              role={alerta.err ? 'alert' : 'status'}
+              aria-live="polite"
+            >
               {alerta.txt}
             </div>
           )}
@@ -602,7 +624,7 @@ const Login = () => {
                 </div>
 
                 <button type="submit" className="voke-btn-salvar-datos">
-                  Alterar senha (Salvar dados)
+                  Salvar dados cadastrais
                 </button>
               </form>
 
@@ -619,6 +641,7 @@ const Login = () => {
                     onChange={(e) => setPass(e.target.value)}
                     placeholder="Digite nova senha"
                     className="voke-form-input-text"
+                    required
                   />
                 </div>
 
@@ -632,11 +655,12 @@ const Login = () => {
                     onChange={(e) => setContrasenaAnterior(e.target.value)}
                     placeholder="Digite sua senha atual para validar"
                     className="voke-form-input-text"
+                    required
                   />
                 </div>
 
                 <button type="submit" className="voke-btn-salvar-clave">
-                  Alterar senha (PUT Clave)
+                  Alterar senha
                 </button>
               </form>
 
